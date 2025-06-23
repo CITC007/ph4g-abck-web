@@ -93,6 +93,6 @@ class ScoreController extends Controller
             }
         }
 
-        return redirect()->route('score-entry')->with('success', 'บันทึกคะแนนเรียบร้อยแล้ว');
+        return redirect()->route('score-entry.form')->with('success', 'บันทึกคะแนนเรียบร้อยแล้ว');
     }
 }

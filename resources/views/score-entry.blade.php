@@ -7,6 +7,12 @@
     @vite('resources/css/app.css')
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
+@if(session('error'))
+    <div class="mb-4 p-3 bg-red-100 border border-red-300 rounded text-red-800">
+        {{ session('error') }}
+    </div>
+@endif
+
 <body  class="p-4 bg-gray-50"
     x-data="{
         show: false,
@@ -17,6 +23,10 @@
         prepareBulkAndSubmit(e) {
             if (this.isBulk) {
                 const selected = document.querySelectorAll('input[name=\'selected_students[]\']:checked');
+                if (selected.length === 0) {
+                    alert('กรุณาเลือกนักเรียนอย่างน้อย 1 คนก่อนเพิ่มคะแนน');
+                    return; // หยุดไม่ให้ submit
+                }
                 selected.forEach(cb => {
                     const input = document.createElement('input');
                     input.type = 'hidden';
@@ -27,7 +37,18 @@
             }
             e.target.submit();
         }
-    }">
+    }"
+    x-init="
+        // เพิ่ม event listener สำหรับ select-all checkbox
+        $watch('show', value => {
+            if (!value) {
+                // ถ้า modal ปิดแล้ว ยกเลิกเลือกทั้งหมด
+                document.getElementById('select-all').checked = false;
+                document.querySelectorAll('.student-checkbox').forEach(cb => cb.checked = false);
+            }
+        });
+    "
+>
 
 <!-- ปุ่มกลับหน้าแรก -->
 <a href="{{ route('dashboard') }}" class="inline-block mb-4 px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">
@@ -82,12 +103,20 @@
 <!-- ตารางนักเรียน -->
 @if(session()->has('teacher_name'))
     @if(count($students) > 0)
-        <form id="bulk-score-form" method="POST" action="{{ route('score-entry.save') }}">
+        <form id="bulk-score-form" method="POST" action="{{ route('score-entry.save') }}" @submit.prevent="prepareBulkAndSubmit">
             @csrf
             <table class="w-full text-left border">
                 <thead class="bg-gray-100">
                     <tr>
-                        <th class="p-2 border">เลือก</th>
+                        <th class="p-2 border">
+                            <input type="checkbox" id="select-all" 
+                                @click="
+                                    const checked = $event.target.checked;
+                                    document.querySelectorAll('.student-checkbox').forEach(cb => cb.checked = checked);
+                                "
+                            >
+                            เลือกทั้งหมด
+                        </th>
                         <th class="p-2 border">รหัส</th>
                         <th class="p-2 border">ชื่อ</th>
                         <th class="p-2 border">ห้อง</th>
@@ -100,7 +129,7 @@
                     @foreach($students as $student)
                         <tr>
                             <td class="p-2 border">
-                                <input type="checkbox" name="selected_students[]" value="{{ $student->id }}">
+                                <input type="checkbox" name="selected_students[]" value="{{ $student->id }}" class="student-checkbox">
                             </td>
                             <td class="p-2 border">{{ $student->student_code }}</td>
                             <td class="p-2 border">{{ $student->student_name }}</td>
@@ -140,25 +169,25 @@
         </h2>
 <form method="POST" action="{{ route('score-entry.save') }}" @submit.prevent="prepareBulkAndSubmit($event)">
 
-        <!-- <form method="POST" action="{{ route('score-entry.save') }}"> -->
-            @csrf
-            <template x-if="!isBulk">
-                <input type="hidden" name="student_id" :value="studentId">
-            </template>
+        @csrf
+        <template x-if="!isBulk">
+            <input type="hidden" name="student_id" :value="studentId">
+        </template>
 
-            <div class="mb-4">
-                <label class="block font-medium mb-1">เหตุผลที่ให้คะแนน:</label>
-                <textarea name="reason" required maxlength="255" rows="3" class="w-full border p-2 rounded"></textarea>
-            </div>
+        <div class="mb-4">
+            <label class="block font-medium mb-1">เหตุผลที่ให้คะแนน:</label>
+            <textarea name="reason" required maxlength="255" rows="3" class="w-full border p-2 rounded"></textarea>
+        </div>
 
-            <div class="flex justify-end gap-2">
-                <button type="button" @click="show = false" class="px-4 py-2 bg-gray-300 rounded">ปิด</button>
-                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">บันทึก</button>
-            </div>
-        </form>
+        <div class="flex justify-end gap-2">
+            <button type="button" @click="show = false" class="px-4 py-2 bg-gray-300 rounded">ปิด</button>
+            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">บันทึก</button>
+        </div>
+    </form>
     </div>
 </div>
 
+<!-- Popup Login -->
 <!-- Popup Login -->
 <div x-show="showLogin" x-cloak
      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -169,7 +198,8 @@
             @csrf
             <div class="mb-4">
                 <label class="block font-medium mb-1">ชื่อครู</label>
-                <input type="text" name="teacher_name" required class="w-full p-2 border rounded" />
+                <input type="text" name="teacher_name" required class="w-full p-2 border rounded"
+                       value="{{ old('teacher_name') }}" />
             </div>
             <div class="mb-4">
                 <label class="block font-medium mb-1">ชั้นเรียน</label>
@@ -184,17 +214,27 @@
                         'ป.5/1','ป.5/2','ป.5/3','ป.5/4',
                         'ป.6/1','ป.6/2','ป.6/3','ป.6/4',
                     ] as $room)
-                        <option value="{{ $room }}">{{ $room }}</option>
+                        <option value="{{ $room }}" {{ old('class_room') == $room ? 'selected' : '' }}>{{ $room }}</option>
                     @endforeach
                 </select>
             </div>
+
+            @if($errors->any())
+                <div class="mb-2 text-red-600 text-sm">
+                    {{ $errors->first() }}
+                </div>
+            @endif
+
             <div class="flex justify-end gap-2">
-                <button type="button" @click="showLogin = false" class="px-4 py-2 bg-gray-300 rounded">ยกเลิก</button>
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">เข้าใช้งาน</button>
+                <a href="{{ route('dashboard') }}" class="px-4 py-2 bg-gray-300 rounded inline-block text-center">ยกเลิก</a>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                    เข้าใช้งาน
+                </button>
             </div>
         </form>
     </div>
 </div>
+
 
 </body>
 </html>

@@ -54,16 +54,21 @@ class ReportController extends Controller
                         $q->where('month', $month)->where('year', $year);
                     }
                 ], 'point')
-                ->get();
+                ->get()
+                ->map(function ($student) {
+                    $student->total_points = $student->scores_sum_point ?? 0;
+                    return $student;
+                });
         }
 
         return view('report.class_scores', [
-            'students' => $students,
+            'classScores' => $students,
             'classRoom' => $classRoom,
             'month' => $month,
             'year' => $year,
         ]);
     }
+
 
     // ฟังก์ชันดาวน์โหลดรายงานคะแนนสูงสุด (.xlsx / .pdf)
     public function downloadTopScores(Request $request)

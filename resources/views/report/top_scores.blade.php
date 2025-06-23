@@ -3,12 +3,18 @@
 
 <head>
     <meta charset="UTF-8" />
+
     <title>รายงานคะแนนสูงสุดแต่ละเดือน</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     @vite('resources/css/app.css')
 </head>
 
 <body class="p-4 bg-gray-50">
+    <!-- ปุ่มกลับหน้าแรก -->
+    <a href="{{ route('dashboard') }}"
+        class="inline-block mb-4 px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">
+        ← กลับหน้าแรก
+    </a>
 
     <h1 class="text-2xl font-bold mb-4">รายงานคะแนนสูงสุดแต่ละเดือน</h1>
 

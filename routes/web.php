@@ -18,10 +18,12 @@ Route::get('/report/top-scores/export', [ReportController::class, 'exportTopScor
 
 // รายงานคะแนนรายชั้น (หน้า 4)
 Route::get('/report/class-scores', [ReportController::class, 'classScores'])->name('report.class_scores');
-Route::post('/report/class-scores/download', [ReportController::class, 'downloadClassScores'])->name('report.class_scores.download');
+Route::post('/report/class-scores/download', [ReportController::class, 'downloadClassScores'])->name('report.class-scores.download');
+Route::get('/report/class-scores/export', [ReportController::class, 'exportClassScores'])->name('report.class_scores_export');
 
 // หน้าเพิ่มคะแนนนักเรียน (ต้องล็อกอินครูก่อน)
 Route::get('/score-entry', [ScoreController::class, 'showForm'])->name('score-entry');
+Route::get('/score-entry', [ScoreController::class, 'showForm'])->name('score-entry.form');
 
 // ค้นหานักเรียนในหน้าเพิ่มคะแนน (POST)
 Route::post('/score-entry/search', [ScoreController::class, 'search'])->name('score-entry.search');
