@@ -7,13 +7,8 @@
     @vite('resources/css/app.css')
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-@if(session('error'))
-    <div class="mb-4 p-3 bg-red-100 border border-red-300 rounded text-red-800">
-        {{ session('error') }}
-    </div>
-@endif
 
-<body  class="p-4 bg-gray-50"
+<body class="p-4 bg-gray-50"
     x-data="{
         show: false,
         studentId: null,
@@ -25,7 +20,7 @@
                 const selected = document.querySelectorAll('input[name=\'selected_students[]\']:checked');
                 if (selected.length === 0) {
                     alert('กรุณาเลือกนักเรียนอย่างน้อย 1 คนก่อนเพิ่มคะแนน');
-                    return; // หยุดไม่ให้ submit
+                    return;
                 }
                 selected.forEach(cb => {
                     const input = document.createElement('input');
@@ -39,10 +34,8 @@
         }
     }"
     x-init="
-        // เพิ่ม event listener สำหรับ select-all checkbox
         $watch('show', value => {
             if (!value) {
-                // ถ้า modal ปิดแล้ว ยกเลิกเลือกทั้งหมด
                 document.getElementById('select-all').checked = false;
                 document.querySelectorAll('.student-checkbox').forEach(cb => cb.checked = false);
             }
@@ -51,7 +44,8 @@
 >
 
 <!-- ปุ่มกลับหน้าแรก -->
-<a href="{{ route('dashboard') }}" class="inline-block mb-4 px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">
+<a href="{{ route('dashboard') }}" 
+   class="inline-block mb-4 px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">
     ← กลับหน้าแรก
 </a>
 
@@ -68,7 +62,7 @@
 @if(session()->has('teacher_name'))
     <div class="mb-4 p-3 bg-green-50 rounded border border-green-300">
         <p class="text-lg text-gray-700">
-            ครู: <strong>{{ session('teacher_name') }}</strong> ({{ session('teacher_class_room') }})
+            ครู: <strong class="text-blue-600">{{ session('teacher_name') }}</strong> ({{ session('teacher_class_room') }})
         </p>
         <form action="{{ route('teacher.auth.logout') }}" method="POST" class="inline-block mt-2">
             @csrf
@@ -79,10 +73,12 @@
 
 <!-- ฟอร์มค้นหา -->
 @if(session()->has('teacher_name'))
-<form action="{{ route('score-entry.search') }}" method="POST" class="flex flex-wrap items-center gap-2 mb-4">
+<form action="{{ route('score-entry.search') }}" method="POST" 
+      class="flex flex-col sm:flex-row sm:items-center sm:gap-3 mb-4">
     @csrf
-    <input type="text" name="keyword" placeholder="ค้นหาชื่อนักเรียนหรือรหัส" class="p-2 border rounded w-64" />
-    <select name="class_room" class="p-2 border rounded">
+    <input type="text" name="keyword" placeholder="ค้นหาชื่อนักเรียนหรือรหัส" 
+           class="p-2 border rounded w-full sm:w-64 mb-2 sm:mb-0" />
+    <select name="class_room" class="p-2 border rounded w-full sm:w-auto mb-2 sm:mb-0">
         <option value="">-- ทุกชั้นเรียน --</option>
         @foreach([
             'อนุบาลห้อง1', 'อนุบาลห้อง2', 'อนุบาลห้อง3', 'อนุบาลห้อง4',
@@ -96,49 +92,47 @@
             <option value="{{ $room }}">{{ $room }}</option>
         @endforeach
     </select>
-    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">ค้นหา</button>
+    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded w-full sm:w-auto">ค้นหา</button>
 </form>
 @endif
 
 <!-- ตารางนักเรียน -->
 @if(session()->has('teacher_name'))
     @if(count($students) > 0)
-        <form id="bulk-score-form" method="POST" action="{{ route('score-entry.save') }}" @submit.prevent="prepareBulkAndSubmit">
+        <form id="bulk-score-form" method="POST" action="{{ route('score-entry.save') }}" @submit.prevent="prepareBulkAndSubmit" class="overflow-x-auto">
             @csrf
-            <table class="w-full text-left border">
+            <table class="w-full min-w-[700px] text-left border border-collapse border-gray-300">
                 <thead class="bg-gray-100">
                     <tr>
-                        <th class="p-2 border">
+                        <th class="p-2 border border-gray-300 text-center">
                             <input type="checkbox" id="select-all" 
                                 @click="
                                     const checked = $event.target.checked;
                                     document.querySelectorAll('.student-checkbox').forEach(cb => cb.checked = checked);
                                 "
                             >
-                            เลือกทั้งหมด
+                            เลือก
                         </th>
-                        <th class="p-2 border">รหัส</th>
-                        <th class="p-2 border">ชื่อ</th>
-                        <th class="p-2 border">ห้อง</th>
-                        <th class="p-2 border">คะแนนสะสม</th>
-                        <th class="p-2 border">ประวัติ</th>
-                        <th class="p-2 border">เพิ่มคะแนน</th>
+                        <th class="p-2 border border-gray-300 text-center">ชื่อ</th>
+                        <th class="p-2 border border-gray-300 text-center">ห้อง</th>
+                        <th class="p-2 border border-gray-300 text-center">คะแนนสะสม</th>
+                        <th class="p-2 border border-gray-300 text-center">ประวัติ</th>
+                        <th class="p-2 border border-gray-300 text-center">เพิ่มคะแนน</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($students as $student)
                         <tr>
-                            <td class="p-2 border">
+                            <td class="p-2 border border-gray-300 text-center">
                                 <input type="checkbox" name="selected_students[]" value="{{ $student->id }}" class="student-checkbox">
                             </td>
-                            <td class="p-2 border">{{ $student->student_code }}</td>
-                            <td class="p-2 border">{{ $student->student_name }}</td>
-                            <td class="p-2 border">{{ $student->class_room }}</td>
-                            <td class="p-2 border">{{ $student->scores_sum_point ?? 0 }}</td>
-                            <td class="p-2 border">
+                            <td class="p-2 border border-gray-300 text-center">{{ $student->student_name }}</td>
+                            <td class="p-2 border border-gray-300 text-center">{{ $student->class_room }}</td>
+                            <td class="p-2 border border-gray-300 text-center">{{ $student->scores_sum_point ?? 0 }}</td>
+                            <td class="p-2 border border-gray-300 text-center">
                                 <a href="{{ url('/student-history/' . $student->id) }}" class="text-blue-600 hover:underline">ดูประวัติ</a>
                             </td>
-                            <td class="p-2 border">
+                            <td class="p-2 border border-gray-300 text-center">
                                 <button type="button"
                                     @click="show = true; studentId = {{ $student->id }}; studentName = '{{ $student->student_name }}'; isBulk = false"
                                     class="text-green-600 hover:underline">เพิ่มคะแนน</button>
@@ -151,7 +145,7 @@
             <!-- ปุ่มเพิ่มคะแนนกลุ่ม -->
             <button type="button"
                 @click="isBulk = true; studentId = null; studentName = ''; show = true;"
-                class="mt-4 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
+                class="mt-4 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 w-full sm:w-auto">
                 เพิ่มคะแนนให้รายการที่เลือก
             </button>
         </form>
@@ -162,46 +156,44 @@
 
 <!-- Modal เพิ่มคะแนน -->
 <div x-show="show" x-cloak
-     class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-    <div class="bg-white p-6 rounded-lg w-full max-w-md shadow-xl">
+     class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+    <div class="bg-white p-6 rounded-lg w-full max-w-md shadow-xl overflow-auto max-h-[90vh]">
         <h2 class="text-xl font-bold mb-4">
             เพิ่มคะแนน: <span x-text="isBulk ? 'รายการนักเรียนที่เลือก' : studentName"></span>
         </h2>
-<form method="POST" action="{{ route('score-entry.save') }}" @submit.prevent="prepareBulkAndSubmit($event)">
+        <form method="POST" action="{{ route('score-entry.save') }}" @submit.prevent="prepareBulkAndSubmit($event)">
+            @csrf
+            <template x-if="!isBulk">
+                <input type="hidden" name="student_id" :value="studentId">
+            </template>
 
-        @csrf
-        <template x-if="!isBulk">
-            <input type="hidden" name="student_id" :value="studentId">
-        </template>
+            <div class="mb-4">
+                <label class="block font-medium mb-1">เหตุผลที่ให้คะแนน:</label>
+                <textarea name="reason" required maxlength="255" rows="3" class="w-full border p-2 rounded"></textarea>
+            </div>
 
-        <div class="mb-4">
-            <label class="block font-medium mb-1">เหตุผลที่ให้คะแนน:</label>
-            <textarea name="reason" required maxlength="255" rows="3" class="w-full border p-2 rounded"></textarea>
-        </div>
-
-        <div class="flex justify-end gap-2">
-            <button type="button" @click="show = false" class="px-4 py-2 bg-gray-300 rounded">ปิด</button>
-            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">บันทึก</button>
-        </div>
-    </form>
+            <div class="flex justify-end gap-2 flex-wrap">
+                <button type="button" @click="show = false" class="px-4 py-2 bg-gray-300 rounded w-full sm:w-auto">ปิด</button>
+                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 w-full sm:w-auto">บันทึก</button>
+            </div>
+        </form>
     </div>
 </div>
 
 <!-- Popup Login -->
-<!-- Popup Login -->
 <div x-show="showLogin" x-cloak
-     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white p-6 rounded shadow-lg w-full max-w-sm">
+     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white p-6 rounded shadow-lg w-full max-w-sm overflow-auto max-h-[90vh]">
         <h2 class="text-xl font-bold mb-4">เข้าสู่ระบบครู</h2>
 
-        <form action="{{ route('teacher.auth.login') }}" method="POST">
+        <form action="{{ route('teacher.auth.login') }}" method="POST" class="flex flex-col gap-4">
             @csrf
-            <div class="mb-4">
+            <div>
                 <label class="block font-medium mb-1">ชื่อครู</label>
                 <input type="text" name="teacher_name" required class="w-full p-2 border rounded"
                        value="{{ old('teacher_name') }}" />
             </div>
-            <div class="mb-4">
+            <div>
                 <label class="block font-medium mb-1">ครูประจำชั้นเรียน</label>
                 <select name="class_room" required class="w-full p-2 border rounded">
                     <option value="" disabled selected>-- เลือกชั้นเรียน --</option>
@@ -220,21 +212,20 @@
             </div>
 
             @if($errors->any())
-                <div class="mb-2 text-red-600 text-sm">
+                <div class="text-red-600 text-sm">
                     {{ $errors->first() }}
                 </div>
             @endif
 
-            <div class="flex justify-end gap-2">
-                <a href="{{ route('dashboard') }}" class="px-4 py-2 bg-gray-300 rounded inline-block text-center">ยกเลิก</a>
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+            <div class="flex justify-end gap-2 flex-wrap">
+                <a href="{{ route('dashboard') }}" class="px-4 py-2 bg-gray-300 rounded inline-block text-center w-full sm:w-auto">ยกเลิก</a>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 w-full sm:w-auto">
                     เข้าใช้งาน
                 </button>
             </div>
         </form>
     </div>
 </div>
-
 
 </body>
 </html>

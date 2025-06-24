@@ -30,29 +30,35 @@
         $yearBuddhist = $currentYear + 543;
     @endphp
 
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold">
-            รายการความดีนักเรียนที่ได้คะแนนสูงสุด ประจำเดือน {{ $monthName }} พ.ศ. {{ $yearBuddhist }}
-        </h1>
-
-        <div class="flex gap-3">
+    <div class="mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 sm:gap-3">
             <a href="{{ url('/score-entry') }}"
-                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-center">
                 เพิ่มคะแนนนักเรียน
             </a>
 
             <a href="{{ route('report.top_scores') }}"
-                class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
+                class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition text-center">
                 รายงานคะแนนสูงสุดแต่ละเดือน
             </a>
 
             <a href="{{ route('report.class_scores') }}"
-                class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition">
+                class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition text-center">
                 รายงานคะแนนรายชั้นเรียน
             </a>
+
+
         </div>
     </div>
 
+
+    <div class="div">
+        <h1 class="text-xl sm:text-2xl font-bold mb-4 text-center">
+            รายการความดีนักเรียนที่ได้คะแนนสูงสุด ประจำเดือน
+            <span class="text-blue-500">{{ $monthName }}</span>
+            พ.ศ. <span class="text-blue-500">{{ $yearBuddhist }}</span>
+        </h1>
+    </div>
     <table class="w-full border text-left">
         <thead class="bg-gray-200">
             <tr>

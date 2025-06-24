@@ -8,23 +8,24 @@ use App\Models\Score;
 
 class StudentController extends Controller
 {
-    public function showHistory($id)
+    public function showHistory(Request $request, $id)
     {
         // ดึงข้อมูลนักเรียน
         $student = Student::findOrFail($id);
 
-        // ดึงคะแนนทั้งหมดของนักเรียนคนนี้ (เรียงจากล่าสุด)
+        // ดึงคะแนนทั้งหมดของนักเรียนคนนี้ (เรียงจากล่าสุด), paginate 30 รายการต่อหน้า
         $scores = Score::where('student_id', $id)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(15);
 
-        // คำนวณคะแนนรวมทั้งหมด
-        $totalPoints = $scores->sum('point');
+        // คำนวณคะแนนรวมทั้งหมด (ยังใช้ get() แยกอีกครั้ง)
+        $totalPoints = Score::where('student_id', $id)->sum('point');
 
         // คำนวณคะแนนรวมของเดือนนี้
         $currentMonth = date('n');
         $currentYear = date('Y');
-        $monthPoints = $scores->where('month', $currentMonth)
+        $monthPoints = Score::where('student_id', $id)
+            ->where('month', $currentMonth)
             ->where('year', $currentYear)
             ->sum('point');
 
