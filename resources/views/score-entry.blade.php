@@ -77,8 +77,8 @@
       class="flex flex-col sm:flex-row sm:items-center sm:gap-3 mb-4">
     @csrf
     <input type="text" name="keyword" placeholder="ค้นหาชื่อนักเรียนหรือรหัส" 
-           class="p-2 border rounded w-full sm:w-64 mb-2 sm:mb-0" />
-    <select name="class_room" class="p-2 border rounded w-full sm:w-auto mb-2 sm:mb-0">
+           class="p-2 border rounded w-full sm:w-64 mb-2 sm:mb-0 text-sm sm:text-base" />
+    <select name="class_room" class="p-2 border rounded w-full sm:w-auto mb-2 sm:mb-0 text-sm sm:text-base">
         <option value="">-- ทุกชั้นเรียน --</option>
         @foreach([
             'อนุบาลห้อง1', 'อนุบาลห้อง2', 'อนุบาลห้อง3', 'อนุบาลห้อง4',
@@ -92,50 +92,62 @@
             <option value="{{ $room }}">{{ $room }}</option>
         @endforeach
     </select>
-    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded w-full sm:w-auto">ค้นหา</button>
+    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded w-full sm:w-auto text-sm sm:text-base">ค้นหา</button>
 </form>
 @endif
 
 <!-- ตารางนักเรียน -->
 @if(session()->has('teacher_name'))
     @if(count($students) > 0)
-        <form id="bulk-score-form" method="POST" action="{{ route('score-entry.save') }}" @submit.prevent="prepareBulkAndSubmit" class="overflow-x-auto">
+        <form id="bulk-score-form" method="POST" action="{{ route('score-entry.save') }}" 
+              @submit.prevent="prepareBulkAndSubmit" 
+              class="overflow-x-auto">
             @csrf
-            <table class="w-full min-w-[700px] text-left border border-collapse border-gray-300">
+            <table class="w-full text-left border border-collapse border-gray-300 min-w-[500px]">
                 <thead class="bg-gray-100">
                     <tr>
-                        <th class="p-2 border border-gray-300 text-center">
+                        <th class="px-1 py-1 border border-gray-300 text-center">
                             <input type="checkbox" id="select-all" 
                                 @click="
                                     const checked = $event.target.checked;
                                     document.querySelectorAll('.student-checkbox').forEach(cb => cb.checked = checked);
                                 "
                             >
-                            เลือก
                         </th>
-                        <th class="p-2 border border-gray-300 text-center">ชื่อ</th>
-                        <th class="p-2 border border-gray-300 text-center">ห้อง</th>
-                        <th class="p-2 border border-gray-300 text-center">คะแนนสะสม</th>
-                        <th class="p-2 border border-gray-300 text-center">ประวัติ</th>
-                        <th class="p-2 border border-gray-300 text-center">เพิ่มคะแนน</th>
+                        <th class="px-1 py-1 border border-gray-300 text-center">เพิ่ม</th>
+                        <th class="px-1 py-1 border border-gray-300 text-center">ชื่อ</th>
+                        <th class="px-1 py-1 border border-gray-300 text-center">ห้อง</th>
+                        <th class="px-1 py-1 border border-gray-300 text-center">คะแนนสะสม</th>
+                        <th class="px-1 py-1 border border-gray-300 text-center">ประวัติ</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($students as $student)
-                        <tr>
-                            <td class="p-2 border border-gray-300 text-center">
+                        <tr class="text-sm sm:text-base">
+                            <td class="px-1 py-1 border border-gray-300 text-center">
                                 <input type="checkbox" name="selected_students[]" value="{{ $student->id }}" class="student-checkbox">
                             </td>
-                            <td class="p-2 border border-gray-300 text-center">{{ $student->student_name }}</td>
-                            <td class="p-2 border border-gray-300 text-center">{{ $student->class_room }}</td>
-                            <td class="p-2 border border-gray-300 text-center">{{ $student->scores_sum_point ?? 0 }}</td>
-                            <td class="p-2 border border-gray-300 text-center">
-                                <a href="{{ url('/student-history/' . $student->id) }}" class="text-blue-600 hover:underline">ดูประวัติ</a>
-                            </td>
-                            <td class="p-2 border border-gray-300 text-center">
+                            <td class="px-1 py-1 border border-gray-300 text-center">
                                 <button type="button"
                                     @click="show = true; studentId = {{ $student->id }}; studentName = '{{ $student->student_name }}'; isBulk = false"
-                                    class="text-green-600 hover:underline">เพิ่มคะแนน</button>
+                                    class="px-1 py-1 text-pink-500 hover:text-pink-700 flex items-center justify-center mx-auto"
+                                    aria-label="เพิ่มคะแนน" title="เพิ่มคะแนน"
+                                    style="width: 40px; height: 40px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
+                                         stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" 
+                                              d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 
+                                                 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 
+                                                 7.22 9 12 9 12s9-4.78 9-12Z" />
+                                    </svg>
+                                </button>
+                            </td>
+                            <td class="px-1 py-1 border border-gray-300 text-center">{{ $student->student_name }}</td>
+                            <td class="px-1 py-1 border border-gray-300 text-center">{{ $student->class_room }}</td>
+                            <td class="px-1 py-1 border border-gray-300 text-center">{{ $student->scores_sum_point ?? 0 }}</td>
+                            <td class="px-1 py-1 border border-gray-300 text-center">
+                                <a href="{{ url('/student-history/' . $student->id) }}" 
+                                   class="px-1 py-1 text-blue-600 hover:underline text-sm sm:text-base">ดูประวัติ</a>
                             </td>
                         </tr>
                     @endforeach
@@ -145,12 +157,12 @@
             <!-- ปุ่มเพิ่มคะแนนกลุ่ม -->
             <button type="button"
                 @click="isBulk = true; studentId = null; studentName = ''; show = true;"
-                class="mt-4 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 w-full sm:w-auto">
+                class="mt-4 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 w-full sm:w-auto text-sm sm:text-base">
                 เพิ่มคะแนนให้รายการที่เลือก
             </button>
         </form>
     @else
-        <p class="text-gray-500">ไม่พบนักเรียนในชั้นเรียนนี้ หรือยังไม่มีข้อมูล</p>
+        <p class="text-gray-500 text-sm sm:text-base">ไม่พบนักเรียนในชั้นเรียนนี้ หรือยังไม่มีข้อมูล</p>
     @endif
 @endif
 
@@ -169,12 +181,12 @@
 
             <div class="mb-4">
                 <label class="block font-medium mb-1">เหตุผลที่ให้คะแนน:</label>
-                <textarea name="reason" required maxlength="255" rows="3" class="w-full border p-2 rounded"></textarea>
+                <textarea name="reason" required maxlength="255" rows="3" class="w-full border p-2 rounded text-sm sm:text-base"></textarea>
             </div>
 
             <div class="flex justify-end gap-2 flex-wrap">
-                <button type="button" @click="show = false" class="px-4 py-2 bg-gray-300 rounded w-full sm:w-auto">ปิด</button>
-                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 w-full sm:w-auto">บันทึก</button>
+                <button type="button" @click="show = false" class="px-4 py-2 bg-gray-300 rounded w-full sm:w-auto text-sm sm:text-base">ปิด</button>
+                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 w-full sm:w-auto text-sm sm:text-base">บันทึก</button>
             </div>
         </form>
     </div>
@@ -190,12 +202,12 @@
             @csrf
             <div>
                 <label class="block font-medium mb-1">ชื่อครู</label>
-                <input type="text" name="teacher_name" required class="w-full p-2 border rounded"
+                <input type="text" name="teacher_name" required class="w-full p-2 border rounded text-sm sm:text-base"
                        value="{{ old('teacher_name') }}" />
             </div>
             <div>
                 <label class="block font-medium mb-1">ครูประจำชั้นเรียน</label>
-                <select name="class_room" required class="w-full p-2 border rounded">
+                <select name="class_room" required class="w-full p-2 border rounded text-sm sm:text-base">
                     <option value="" disabled selected>-- เลือกชั้นเรียน --</option>
                     @foreach([
                         'อนุบาลห้อง1', 'อนุบาลห้อง2', 'อนุบาลห้อง3', 'อนุบาลห้อง4',
@@ -218,8 +230,8 @@
             @endif
 
             <div class="flex justify-end gap-2 flex-wrap">
-                <a href="{{ route('dashboard') }}" class="px-4 py-2 bg-gray-300 rounded inline-block text-center w-full sm:w-auto">ยกเลิก</a>
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 w-full sm:w-auto">
+                <a href="{{ route('dashboard') }}" class="px-4 py-2 bg-gray-300 rounded inline-block text-center w-full sm:w-auto text-sm sm:text-base">ยกเลิก</a>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 w-full sm:w-auto text-sm sm:text-base">
                     เข้าใช้งาน
                 </button>
             </div>

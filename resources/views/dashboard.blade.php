@@ -62,17 +62,17 @@
     <table class="w-full border text-left">
         <thead class="bg-gray-200">
             <tr>
-                <th class="p-2 border">ระดับชั้น</th>
-                <th class="p-2 border">ชื่อนักเรียน</th>
-                <th class="p-2 border">คะแนน</th>
+                <th class="p-2 border text-center">ระดับชั้น</th>
+                <th class="p-2 border text-center">ชื่อนักเรียน</th>
+                <th class="p-2 border text-center">คะแนน</th>
             </tr>
         </thead>
         <tbody>
             @forelse($topScores as $item)
                 <tr>
-                    <td class="p-2 border">{{ $item['class_room'] }}</td>
-                    <td class="p-2 border">{{ $item['student_name'] }}</td>
-                    <td class="p-2 border">{{ $item['total_points'] }}</td>
+                    <td class="p-2 border text-center">{{ $item['class_room'] }}</td>
+                    <td class="p-2 border text-center">{{ $item['student_name'] }}</td>
+                    <td class="p-2 border text-center">{{ $item['total_points'] }}</td>
                 </tr>
             @empty
                 <tr>
