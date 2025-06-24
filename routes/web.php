@@ -39,3 +39,9 @@ Route::post('/teacher/login', [TeacherAuthController::class, 'login'])->name('te
 
 // ระบบ logout ครู (ล้าง session)
 Route::post('/teacher/logout', [TeacherAuthController::class, 'logout'])->name('teacher.auth.logout');
+
+//download Export file
+Route::get('/report/top-scores/export/pdf', [ReportController::class, 'exportTopScores'])->name('report.top_scores_export');
+
+Route::get('/report/class-scores/download', [ReportController::class, 'exportClassScores'])->name('report.class-scores.download');
+

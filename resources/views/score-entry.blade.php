@@ -202,7 +202,7 @@
                        value="{{ old('teacher_name') }}" />
             </div>
             <div class="mb-4">
-                <label class="block font-medium mb-1">ชั้นเรียน</label>
+                <label class="block font-medium mb-1">ครูประจำชั้นเรียน</label>
                 <select name="class_room" required class="w-full p-2 border rounded">
                     <option value="" disabled selected>-- เลือกชั้นเรียน --</option>
                     @foreach([

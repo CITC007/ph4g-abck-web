@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>รายงานคะแนนสูงสุด</title>
+    <style>
+        @font-face {
+            font-family: 'Sarabun';
+            src: url("{{ storage_path('fonts/THSarabunNew.ttf') }}") format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Sarabun';
+            src: url("{{ storage_path('fonts/THSarabunNew-Bold.ttf') }}") format('truetype');
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            font-size: 16pt;
+            margin: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header img {
+            width: 140px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            font-size: 18pt;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .header h2 {
+            font-size: 18pt;
+            margin: 0;
+            font-weight: normal;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+
+        th,
+        td {
+            font-family: 'Sarabun', sans-serif;
+            font-size: 16pt;
+            border: 1px solid #333;
+            padding: 4px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        {{-- เปิดใช้งานโลโก้ถ้ามี --}}
+        <img src="{{ public_path('images/school-logo.png') }}" alt="โลโก้โรงเรียน">
+        <h1>รายงานผลคะแนนของนักเรียนที่ได้รับคะแนนสูงสุด</h1>
+        <h2>ประจำเดือน
+            {{ \Carbon\Carbon::createFromDate($year, $month, 1)->locale('th')->isoFormat('MMMM') }}
+            พ.ศ. {{ $year + 543 }}
+        </h2>
+    </div>
+
+    @if(count($topScores) > 0)
+        <table>
+            <thead>
+                <tr>
+                    <th>ชั้นเรียน</th>
+                    <th>ชื่อนักเรียน</th>
+                    <th>คะแนนรวม</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($topScores as $item)
+                    <tr>
+                        <td>{{ $item->class_room }}</td>
+                        <td>{{ $item->student_name }}</td>
+                        <td>{{ $item->total_points }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @else
+        <p style="text-align: center; font-size: 14pt; color: #888;">ไม่มีข้อมูลคะแนนในเดือนนี้</p>
+    @endif
+
+</body>
+
+</html>

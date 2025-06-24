@@ -51,6 +51,26 @@
     </select>
 
     <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">ค้นหา</button>
+
+    <a href="{{ route('report.class-scores.download', [
+        'class_room' => request('class_room'),
+        'month' => request('month'),
+        'year' => request('year'),
+        'format' => 'xlsx'
+    ]) }}"
+       class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+        ดาวน์โหลด Excel
+    </a>
+
+    <a href="{{ route('report.class-scores.download', [
+        'class_room' => request('class_room'),
+        'month' => request('month'),
+        'year' => request('year'),
+        'format' => 'pdf'
+    ]) }}"
+       class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+        ดาวน์โหลด PDF
+    </a>
 </form>
 
 @if(isset($classScores) && count($classScores) > 0)
@@ -75,17 +95,7 @@
         </tbody>
     </table>
 
-    <div class="mt-4 flex gap-4">
-        <a href="{{ route('report.class-scores.download', ['class_room' => request('class_room'), 'month' => request('month'), 'year' => request('year'), 'format' => 'xlsx']) }}"
-           class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-            ดาวน์โหลด Excel (.xlsx)
-        </a>
-
-        <a href="{{ route('report.class-scores.download', ['class_room' => request('class_room'), 'month' => request('month'), 'year' => request('year'), 'format' => 'pdf']) }}"
-           class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
-            ดาวน์โหลด PDF
-        </a>
-    </div>
+   
 @else
     <p class="text-gray-500">ไม่มีข้อมูลนักเรียนในชั้นเรียนนี้ หรือยังไม่เลือกชั้นเรียน</p>
 @endif

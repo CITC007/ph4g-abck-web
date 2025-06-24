@@ -6,6 +6,11 @@ use Illuminate\Http\Request;
 use App\Models\Score;
 use App\Models\Student;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\TopScoresExport;
+use App\Exports\ClassScoresExport;
+use PDF;
+use Carbon\Carbon;
 
 class ReportController extends Controller
 {
@@ -69,25 +74,77 @@ class ReportController extends Controller
         ]);
     }
 
-
-    // ฟังก์ชันดาวน์โหลดรายงานคะแนนสูงสุด (.xlsx / .pdf)
-    public function downloadTopScores(Request $request)
+    public function exportClassScores(Request $request)
     {
-        // TODO: พัฒนาเพิ่มเติม
-        return response('ฟังก์ชันดาวน์โหลดรายงานคะแนนสูงสุดยังไม่พัฒนา');
+        $class_room = $request->get('class_room');
+        $month = $request->get('month');
+        $year = $request->get('year');
+        $format = $request->get('format', 'xlsx');
+
+        // ดึงข้อมูลนักเรียนและคะแนนรวม ตามเงื่อนไข
+        $classScores = DB::table('scores')
+            ->select('students.student_code', 'students.student_name', 'students.class_room', DB::raw('SUM(scores.point) as scores_sum_point'))
+            ->join('students', 'scores.student_id', '=', 'students.id')
+            ->where('students.class_room', $class_room)
+            ->whereMonth('scores.created_at', $month)
+            ->whereYear('scores.created_at', $year)
+            ->groupBy('students.id', 'students.student_code', 'students.student_name', 'students.class_room')
+            ->orderBy('students.student_code', 'asc')  // เปลี่ยนจาก orderBy('students.student_name') เป็นแบบนี้
+            ->get();
+
+
+        $safeClassRoom = str_replace(['/', '\\'], '_', $class_room);
+        $filename = 'class_scores_' . $safeClassRoom . '_' . $month . '_' . $year;
+
+        if ($format === 'pdf') {
+            $filename .= '.pdf';
+            $pdf = PDF::loadView('exports.class_scores', [
+                'classScores' => $classScores,
+                'class_room' => $class_room,
+                'month' => $month,
+                'year' => $year,
+            ]);
+            return $pdf->download($filename);
+        }
+
+        $filename .= '.xlsx';
+        return Excel::download(new ClassScoresExport($classScores, $class_room, $month, $year), $filename);
     }
 
-    // ฟังก์ชันดาวน์โหลดรายงานคะแนนรายชั้น (.xlsx / .pdf)
-    public function downloadClassScores(Request $request)
-    {
-        // TODO: พัฒนาเพิ่มเติม
-        return response('ฟังก์ชันดาวน์โหลดรายงานคะแนนรายชั้นยังไม่พัฒนา');
-    }
+
 
     public function exportTopScores(Request $request)
     {
-        // โค้ดสร้างไฟล์ Excel หรือ PDF หรือแสดงข้อความ
-        return response('Export top scores function not implemented yet');
+        $month = $request->get('month');
+        $year = $request->get('year');
+        $format = $request->get('format', 'xlsx');
+
+        // Subquery ดึงคะแนนรวมสูงสุดต่อ class_room
+        $topScores = DB::table('scores')
+            ->select('students.student_name', 'students.class_room', DB::raw('SUM(scores.point) as total_points'))
+            ->join('students', 'scores.student_id', '=', 'students.id')
+            ->whereMonth('scores.created_at', $month)
+            ->whereYear('scores.created_at', $year)
+            ->groupBy('students.id', 'students.student_name', 'students.class_room')
+            ->orderBy('students.class_room')
+            ->get()
+            ->groupBy('class_room')
+            ->map(function ($group) {
+                return $group->sortByDesc('total_points')->first();
+            })->values();
+
+        if ($format === 'pdf') {
+            $pdf = PDF::loadView('exports.top_scores', [
+                'topScores' => $topScores,
+                'month' => $month,
+                'year' => $year
+            ]);
+            return $pdf->download('top_scores_' . $month . '_' . $year . '.pdf');
+        }
+
+        return Excel::download(new TopScoresExport($topScores, $month, $year), 'top_scores_' . $month . '_' . $year . '.xlsx');
     }
+
+
 
 }

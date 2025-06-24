@@ -20,7 +20,7 @@
                 <input type="hidden" name="selected_teacher_id" value="{{ $teacher->id }}">
                 <input type="hidden" name="class_room" value="{{ $inputClass }}">
                 <input type="hidden" name="teacher_name" value="{{ $teacher->teacher_name }}">
-                <button type="submit" class="w-full text-left px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                <button type="submit" class=" px-4 py-2 bg-blue-600 text-white rounded w-3xs hover:bg-blue-700">
                     {{ $teacher->teacher_name }}
                 </button>
             </form>
