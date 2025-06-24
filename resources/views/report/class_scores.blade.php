@@ -89,7 +89,7 @@
             <thead class="bg-gray-100">
                 <tr>
                     <th class="p-2 border border-gray-300 text-center">รหัส</th>
-                    <th class="p-2 border border-gray-300">ชื่อนักเรียน</th>
+                    <th class="p-2 border border-gray-300 text-center">ชื่อนักเรียน</th>
                     <th class="p-2 border border-gray-300 text-center">ชั้นเรียน</th>
                     <th class="p-2 border border-gray-300 text-center">คะแนนสะสม</th>
                 </tr>
@@ -98,7 +98,7 @@
                 @foreach($classScores as $student)
                     <tr>
                         <td class="p-2 border border-gray-300 text-center">{{ $student->student_code }}</td>
-                        <td class="p-2 border border-gray-300">{{ $student->student_name }}</td>
+                        <td class="p-2 border border-gray-300 text-center">{{ $student->student_name }}</td>
                         <td class="p-2 border border-gray-300 text-center">{{ $student->class_room }}</td>
                         <td class="p-2 border border-gray-300 text-center">{{ $student->scores_sum_point ?? 0 }}</td>
                     </tr>
