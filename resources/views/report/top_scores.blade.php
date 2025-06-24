@@ -55,17 +55,17 @@
         <table class="w-full text-left border">
             <thead class="bg-gray-100">
                 <tr>
-                    <th class="p-2 border">ชั้นเรียน</th>
-                    <th class="p-2 border">ชื่อนักเรียน</th>
-                    <th class="p-2 border">คะแนนสูงสุด</th>
+                    <th class="p-2 border text-center">ชั้นเรียน</th>
+                    <th class="p-2 border text-center">ชื่อนักเรียน</th>
+                    <th class="p-2 border text-center">คะแนนสูงสุด</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($topScores as $score)
                     <tr>
-                        <td class="p-2 border">{{ $score->class_room }}</td>
-                        <td class="p-2 border">{{ $score->student_name }}</td>
-                        <td class="p-2 border">{{ $score->total_points }}</td>
+                        <td class="p-2 border text-center">{{ $score->class_room }}</td>
+                        <td class="p-2 border text-center">{{ $score->student_name }}</td>
+                        <td class="p-2 border text-center">{{ $score->total_points }}</td>
                     </tr>
                 @endforeach
             </tbody>

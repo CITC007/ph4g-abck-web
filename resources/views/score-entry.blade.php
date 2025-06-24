@@ -103,10 +103,11 @@
               @submit.prevent="prepareBulkAndSubmit" 
               class="overflow-x-auto">
             @csrf
-            <table class="w-full text-left border border-collapse border-gray-300 min-w-[500px]">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="px-1 py-1 border border-gray-300 text-center">
+                <div class="w-full overflow-x-auto">
+                <table class="w-full text-left border border-collapse border-gray-300 min-w-[400px] text-xs sm:text-sm">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-1 py-1 border border-gray-300 text-center">
                             <input type="checkbox" id="select-all" 
                                 @click="
                                     const checked = $event.target.checked;
@@ -114,21 +115,20 @@
                                 "
                             >
                         </th>
-                        <th class="px-1 py-1 border border-gray-300 text-center">เพิ่ม</th>
-                        <th class="px-1 py-1 border border-gray-300 text-center">ชื่อ</th>
-                        <th class="px-1 py-1 border border-gray-300 text-center">ห้อง</th>
-                        <th class="px-1 py-1 border border-gray-300 text-center">คะแนนสะสม</th>
-                        <th class="px-1 py-1 border border-gray-300 text-center">ประวัติ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($students as $student)
-                        <tr class="text-sm sm:text-base">
-                            <td class="px-1 py-1 border border-gray-300 text-center">
-                                <input type="checkbox" name="selected_students[]" value="{{ $student->id }}" class="student-checkbox">
-                            </td>
-                            <td class="px-1 py-1 border border-gray-300 text-center">
-                                <button type="button"
+                            <th class="px-0.5 py-1 border border-gray-300 text-center">เพิ่ม</th>
+                            <th class="px-0.5 py-1 border border-gray-300 text-center">ชื่อ</th>
+                            <th class="px-0.5 py-1 border border-gray-300 text-center">ห้อง</th>
+                            <th class="px-0.5 py-1 border border-gray-300 text-center">คะแนน</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($students as $student)
+                            <tr>
+                                <td class="px-0.5 py-1 border border-gray-300 text-center">
+                                    <input type="checkbox" name="selected_students[]" value="{{ $student->id }}" class="student-checkbox">
+                                </td>
+                                <td class="px-0.5 py-1 border border-gray-300 text-center">
+                                     <button type="button"
                                     @click="show = true; studentId = {{ $student->id }}; studentName = '{{ $student->student_name }}'; isBulk = false"
                                     class="px-1 py-1 text-pink-500 hover:text-pink-700 flex items-center justify-center mx-auto"
                                     aria-label="เพิ่มคะแนน" title="เพิ่มคะแนน"
@@ -141,18 +141,20 @@
                                                  7.22 9 12 9 12s9-4.78 9-12Z" />
                                     </svg>
                                 </button>
-                            </td>
-                            <td class="px-1 py-1 border border-gray-300 text-center">{{ $student->student_name }}</td>
-                            <td class="px-1 py-1 border border-gray-300 text-center">{{ $student->class_room }}</td>
-                            <td class="px-1 py-1 border border-gray-300 text-center">{{ $student->scores_sum_point ?? 0 }}</td>
-                            <td class="px-1 py-1 border border-gray-300 text-center">
-                                <a href="{{ url('/student-history/' . $student->id) }}" 
-                                   class="px-1 py-1 text-blue-600 hover:underline text-sm sm:text-base">ดูประวัติ</a>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                                </td>
+                                <td class="px-0.5 py-1 border border-gray-300 text-center">
+                                    <a href="{{ url('/student-history/' . $student->id) }}" class="text-blue-600 hover:underline">
+                                        {{ $student->student_name }}
+                                    </a>
+                                </td>
+                                <td class="px-0.5 py-1 border border-gray-300 text-center">{{ $student->class_room }}</td>
+                                <td class="px-0.5 py-1 border border-gray-300 text-center">{{ $student->scores_sum_point ?? 0 }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
 
             <!-- ปุ่มเพิ่มคะแนนกลุ่ม -->
             <button type="button"

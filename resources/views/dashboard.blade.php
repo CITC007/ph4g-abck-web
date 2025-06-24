@@ -33,12 +33,12 @@
     <div class="mb-6">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 sm:gap-3">
             <a href="{{ url('/score-entry') }}"
-                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-center">
-                เพิ่มคะแนนนักเรียน
+                class="px-4 py-2 bg-green-600 text-white rounded hover:bg-blue-700 transition text-center">
+                เพิ่มคะแนนหัวใจให้นักเรียน
             </a>
 
             <a href="{{ route('report.top_scores') }}"
-                class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition text-center">
+                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-center">
                 รายงานคะแนนสูงสุดแต่ละเดือน
             </a>
 

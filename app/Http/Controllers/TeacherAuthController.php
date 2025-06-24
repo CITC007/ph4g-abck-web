@@ -88,6 +88,6 @@ class TeacherAuthController extends Controller
     public function logout()
     {
         session()->forget(['teacher_id', 'teacher_name', 'teacher_class_room']);
-        return redirect()->route('score-entry.form');
+        return redirect()->route('dashboard');
     }
 }
