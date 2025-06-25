@@ -18,8 +18,8 @@
     <div class="backdrop-blur-sm bg-white/80 p-4 sm:p-6 rounded-xl shadow-md max-w-5xl mx-auto">
 
         <a href="{{ route('dashboard') }}"
-            class="inline-block mb-6 px-4 py-2 bg-purple-100 text-purple-800 rounded hover:bg-purple-200 transition text-sm sm:text-base">
-            ← กลับหน้าแรก
+        class="inline-block mb-4 px-3 py-1.5 bg-purple-100 text-purple-800 rounded hover:bg-purple-200 transition text-xs sm:text-sm">
+        ← กลับหน้าแรก
         </a>
 
         <h1 class="text-lg sm:text-2xl font-bold mb-6 text-purple-700 text-center leading-relaxed">
@@ -72,7 +72,7 @@
 
             <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 <button type="submit"
-                    class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 w-full sm:w-auto text-sm sm:text-base transition">
+                    class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 w-full sm:w-auto text-sm sm:text-base transition">
                     ค้นหา
                 </button>
 

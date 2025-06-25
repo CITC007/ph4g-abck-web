@@ -15,7 +15,7 @@
     <div class="max-w-5xl mx-auto">
 
         <button onclick="window.history.back()"
-            class="mb-6 px-4 py-2 bg-purple-100 text-purple-800 rounded hover:bg-purple-200 transition text-sm sm:text-base">
+            class="mb-6 px-3 py-1.5 bg-purple-100 text-purple-800 rounded hover:bg-purple-200 transition text-xs sm:text-sm">
             ← กลับ
         </button>
 

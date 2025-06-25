@@ -6,6 +6,7 @@
     <title>หัวใจสีชมพูเชิดชูความดี</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     @vite('resources/css/app.css')
+    @vite('resources/js/app.js')
     <link rel="icon" href="/images/heart.png" sizes="32x32" type="image/png" />
 </head>
 
@@ -42,29 +43,39 @@
 
         <!-- ปุ่ม -->
         <div class="mb-6">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3">
-                <a href="{{ url('/score-entry') }}"
-                    class="px-4 py-2 text-white rounded hover:brightness-110 transition text-center flex items-center justify-center gap-2 text-sm sm:text-base"
-                    style="background-color: #FF9898;">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
-                        class="w-5 h-5 shrink-0">
-                        <path
-                            d="m9.653 16.915-.005-.003-.019-.01a20.759 20.759 0 0 1-1.162-.682 22.045 22.045 0 0 1-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 0 1 8-2.828A4.5 4.5 0 0 1 18 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 0 1-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 0 1-.69.001l-.002-.001Z" />
-                    </svg>
-                    <span>เพิ่มคะแนนหัวใจให้นักเรียน</span>
-                </a>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <!-- โลโก้โรงเรียน -->
+                <div class="hidden sm:block sm:block self-start ml-15">
+                    <img src="/images/school-logo.png" alt="โลโก้โรงเรียน"
+                        class="h-28 w-auto transition-transform duration-300 hover:scale-105 hover:brightness-110 hover:drop-shadow-md" />
+                </div>
+                <!-- ปุ่มต่างๆ -->
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3 mt-4 sm:mt-0">
 
-                <a href="{{ route('report.top_scores') }}"
-                    class="px-4 py-2 text-white rounded hover:brightness-110 transition text-center text-sm sm:text-base"
-                    style="background-color: #9B7EBD;">
-                    รายงานคะแนนสูงสุดแต่ละเดือน
-                </a>
+                    <a href="{{ url('/score-entry') }}"
+                        class=" px-4 py-2 text-white rounded hover:brightness-110 transition text-center flex items-center justify-center gap-2 text-sm sm:text-base"
+                        style="background-color: #FF9898;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                            class="heartbeat w-5 h-5 shrink-0">
+                            <path
+                                d="m9.653 16.915-.005-.003-.019-.01a20.759 20.759 0 0 1-1.162-.682 22.045 22.045 0 0 1-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 0 1 8-2.828A4.5 4.5 0 0 1 18 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 0 1-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 0 1-.69.001l-.002-.001Z" />
+                        </svg>
+                        <span>เพิ่มคะแนนหัวใจให้นักเรียน</span>
+                    </a>
 
-                <a href="{{ route('report.class_scores') }}"
-                    class="px-4 py-2 text-white rounded hover:brightness-110 transition text-center text-sm sm:text-base"
-                    style="background-color: #7F55B1;">
-                    รายงานคะแนนรายชั้นเรียน
-                </a>
+
+                    <a href="{{ route('report.top_scores') }}"
+                        class="px-4 py-2 text-white rounded hover:brightness-110 transition text-center text-sm sm:text-base"
+                        style="background-color: #9B7EBD;">
+                        รายงานคะแนนสูงสุดแต่ละเดือน
+                    </a>
+
+                    <a href="{{ route('report.class_scores') }}"
+                        class="px-4 py-2 text-white rounded hover:brightness-110 transition text-center text-sm sm:text-base"
+                        style="background-color: #7F55B1;">
+                        รายงานคะแนนรายชั้นเรียน
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -82,7 +93,17 @@
                     <tr>
                         <th class="p-3 border">ระดับชั้น</th>
                         <th class="p-3 border">ชื่อนักเรียน</th>
-                        <th class="p-3 border">คะแนน</th>
+                        <th class="p-3 border">
+                            <div class="inline-flex items-center justify-center gap-1">
+                                <span>คะแนน</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="#ec4899"
+                                    class="w-5 h-5 shrink-0">
+                                    <path
+                                        d="m9.653 16.915-.005-.003-.019-.01a20.759 20.759 0 0 1-1.162-.682 22.045 22.045 0 0 1-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 0 1 8-2.828A4.5 4.5 0 0 1 18 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 0 1-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 0 1-.69.001l-.002-.001Z" />
+                                </svg>
+                            </div>
+                        </th>
+
                     </tr>
                 </thead>
                 <tbody>
