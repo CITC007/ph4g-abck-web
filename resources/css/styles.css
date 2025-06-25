@@ -15,3 +15,61 @@
 .heartbeat {
     animation: heartbeat 1.5s ease-in-out infinite;
 }
+@keyframes fadeScale {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.logo-fade-scale {
+    opacity: 0;
+    animation: fadeScale 0.8s ease-out infinite;
+}
+@keyframes heartbeat {
+    0%,
+    100% {
+        transform: scale(1.1);
+    }
+
+    50% {
+        transform: scale(1.35);
+    }
+}
+
+.logo-heartbeat {
+    animation: heartbeat 10.5s ease-in-out infinite;
+}
+
+.logo-container {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+}
+
+.logo-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 25%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent 10%,
+        white 200%,
+        transparent 200%
+    );
+    transform: skewX(45deg);
+    animation: shine 2.5s infinite;
+}
+
+@keyframes shine {
+    100% {
+        left: 125%;
+    }
+}
