@@ -66,8 +66,10 @@
     <div class="header">
         {{-- เปิดใช้งานโลโก้ถ้ามี --}}
         <img src="{{ public_path('images/school-logo.png') }}" alt="โลโก้โรงเรียน">
-        <h1>รายงานคะแนนนักเรียนประจำชั้น {{ $class_room }}</h1>
-        <h2>ประจำเดือน {{ \Carbon\Carbon::createFromDate($year + 543, $month, 1)->locale('th')->isoFormat('MMMM YYYY') }}
+        <h1>โครงการโรงเรียนยุวสุจริต (กิจกรรมหัวใจสีชมพูเชิดชูความดี)</h1>
+        <h1>รายงานคะแนนความดีของนักเรียนประจำชั้น {{ $class_room }}</h1>
+        <h2>ประจำเดือน
+            {{ \Carbon\Carbon::createFromDate($year + 543, $month, 1)->locale('th')->isoFormat('MMMM YYYY') }}
         </h2>
     </div>
     @if(count($classScores) > 0)
@@ -95,6 +97,11 @@
         <p style="text-align: center; font-size: 14pt; color: #888;">ไม่มีข้อมูลนักเรียนในชั้นเรียนนี้</p>
     @endif
 
+
+    <!-- แสดง Timestamp ดาวน์โหลด -->
+    <div class="timestamp">
+        วันที่ดาวน์โหลด: {{ \Carbon\Carbon::now()->locale('th')->isoFormat('D MMMM YYYY HH:mm') }}
+    </div>
 </body>
 
 </html>

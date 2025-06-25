@@ -74,7 +74,8 @@
     <div class="header">
         {{-- เปิดใช้งานโลโก้ถ้ามี --}}
         <img src="{{ public_path('images/school-logo.png') }}" alt="โลโก้โรงเรียน">
-        <h1>รายงานผลคะแนนของนักเรียนที่ได้รับคะแนนสูงสุด</h1>
+        <h1>โครงการโรงเรียนยุวสุจริต (กิจกรรมหัวใจสีชมพูเชิดชูความดี)</h1>
+        <h1>รายงานผลคะแนนความดีของนักเรียนที่ได้รับคะแนนสูงสุด</h1>
         <h2>ประจำเดือน
             {{ \Carbon\Carbon::createFromDate($year, $month, 1)->locale('th')->isoFormat('MMMM') }}
             พ.ศ. {{ $year + 543 }}
@@ -104,6 +105,11 @@
         <p style="text-align: center; font-size: 14pt; color: #888;">ไม่มีข้อมูลคะแนนในเดือนนี้</p>
     @endif
 
+
+    <!-- แสดง Timestamp ดาวน์โหลด -->
+    <div class="timestamp">
+        วันที่ดาวน์โหลด: {{ \Carbon\Carbon::now()->locale('th')->isoFormat('D MMMM YYYY HH:mm') }}
+    </div>
 </body>
 
 </html>
