@@ -8,18 +8,18 @@
     @vite('resources/css/app.css')
     <link rel="icon" href="/images/heart.png" sizes="32x32" type="image/png" />
 </head>
+
 <body class="min-h-screen bg-gray-100 bg-fixed bg-no-repeat bg-center p-4">
-    <div class="fixed  bottom-0 left-0 w-full h-full pointer-events-none" aria-hidden="true">
-        <img src="/images/bg-hearts-light.png" alt="bg hearts" class="w-full h-full object-cover  rounded-xl
-        p-auto sm:p-6 rounded-xl shadow-md max-w-5xl mx-auto
-        " />
+    <div class="fixed bottom-0 left-0 w-full h-full pointer-events-none" aria-hidden="true">
+        <img src="/images/bg-hearts-light.png" alt="bg hearts" class="w-full h-full object-cover rounded-xl
+        p-auto sm:p-6 rounded-xl shadow-md max-w-5xl mx-auto" />
     </div>
 
     <div class="backdrop-blur-sm bg-white/80 p-4 sm:p-6 rounded-xl shadow-md max-w-5xl mx-auto">
 
         <a href="{{ route('dashboard') }}"
-        class="inline-block mb-4 px-3 py-1.5 bg-purple-100 text-purple-800 rounded hover:bg-purple-200 transition text-xs sm:text-sm">
-        ← กลับหน้าแรก
+            class="inline-block mb-4 px-3 py-1.5 bg-purple-100 text-purple-800 rounded hover:bg-purple-200 transition text-xs sm:text-sm">
+            ← กลับหน้าแรก
         </a>
 
         <h1 class="text-lg sm:text-2xl font-bold mb-6 text-purple-700 text-center leading-relaxed">
@@ -104,15 +104,17 @@
                     class="w-full border border-gray-300 text-center shadow-sm rounded-xl overflow-hidden bg-white text-sm sm:text-base">
                     <thead class="bg-purple-100 text-purple-800">
                         <tr>
-                            <th class="p-3 border w-1/5">รหัส</th>
+                            <th class="p-3 border w-1/6">เลขที่</th>
+                            <th class="p-3 border w-1/6">รหัส</th>
                             <th class="p-3 border break-words">ชื่อนักเรียน</th>
-                            <th class="p-3 border w-1/5">ชั้นเรียน</th>
-                            <th class="p-3 border w-1/5">คะแนนสะสม</th>
+                            <th class="p-3 border w-1/6">ชั้นเรียน</th>
+                            <th class="p-3 border w-1/6">คะแนนสะสม</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($classScores as $student)
                             <tr class="hover:bg-purple-50 transition-colors">
+                                <td class="p-3 border break-words">{{ $student->student_number }}</td>
                                 <td class="p-3 border break-words">{{ $student->student_code }}</td>
                                 <td class="p-3 border break-words">{{ $student->student_name }}</td>
                                 <td class="p-3 border">{{ $student->class_room }}</td>

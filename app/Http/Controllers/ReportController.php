@@ -81,17 +81,24 @@ class ReportController extends Controller
         $year = $request->get('year');
         $format = $request->get('format', 'xlsx');
 
-        // ดึงข้อมูลนักเรียนและคะแนนรวม ตามเงื่อนไข
-        $classScores = DB::table('scores')
-            ->select('students.student_code', 'students.student_name', 'students.class_room', DB::raw('SUM(scores.point) as scores_sum_point'))
-            ->join('students', 'scores.student_id', '=', 'students.id')
+        // ดึงข้อมูลนักเรียนและคะแนนรวมตามเงื่อนไข แม้คะแนนจะเป็น 0
+        $classScores = DB::table('students')
+            ->select(
+                'students.student_number',
+                'students.student_code',
+                'students.student_name',
+                'students.class_room',
+                DB::raw('COALESCE(SUM(scores.point), 0) as scores_sum_point')
+            )
+            ->leftJoin('scores', function ($join) use ($month, $year) {
+                $join->on('students.id', '=', 'scores.student_id')
+                    ->whereMonth('scores.created_at', $month)
+                    ->whereYear('scores.created_at', $year);
+            })
             ->where('students.class_room', $class_room)
-            ->whereMonth('scores.created_at', $month)
-            ->whereYear('scores.created_at', $year)
-            ->groupBy('students.id', 'students.student_code', 'students.student_name', 'students.class_room')
-            ->orderBy('students.student_code', 'asc')  // เปลี่ยนจาก orderBy('students.student_name') เป็นแบบนี้
+            ->groupBy('students.id', 'students.student_number', 'students.student_code', 'students.student_name', 'students.class_room')
+            ->orderBy('students.student_number', 'asc')
             ->get();
-
 
         $safeClassRoom = str_replace(['/', '\\'], '_', $class_room);
         $filename = 'class_scores_' . $safeClassRoom . '_' . $month . '_' . $year;
@@ -110,6 +117,7 @@ class ReportController extends Controller
         $filename .= '.xlsx';
         return Excel::download(new ClassScoresExport($classScores, $class_room, $month, $year), $filename);
     }
+
 
 
 

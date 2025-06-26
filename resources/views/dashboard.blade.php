@@ -5,8 +5,7 @@
     <meta charset="UTF-8" />
     <title>หัวใจสีชมพูเชิดชูความดี</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    @vite('resources/css/app.css')
-    @vite('resources/js/app.js')
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="icon" href="/images/heart.png" sizes="32x32" type="image/png" />
 </head>
 

@@ -44,13 +44,13 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
+            margin-top: 5px;
         }
 
         th,
         td {
             border: 1px solid #333;
-            padding: 6px;
+            padding: 3px;
             text-align: center;
             font-family: 'Sarabun', sans-serif;
             font-size: 14pt;
@@ -76,6 +76,7 @@
         <table>
             <thead>
                 <tr>
+                    <th>เลขที่</th>
                     <th>รหัสนักเรียน</th>
                     <th>ชื่อนักเรียน</th>
                     <th>ชั้นเรียน</th>
@@ -85,6 +86,7 @@
             <tbody>
                 @foreach($classScores as $student)
                     <tr>
+                        <td>{{ $student->student_number }}</td>
                         <td>{{ $student->student_code }}</td>
                         <td>{{ $student->student_name }}</td>
                         <td>{{ $student->class_room }}</td>
