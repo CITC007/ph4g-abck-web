@@ -17,12 +17,32 @@
         </tr>
     </thead>
     <tbody>
-        @foreach($topScores as $item)
+        @forelse($topScores as $classRoom => $data)
             <tr>
-                <td>{{ $item->class_room }}</td>
-                <td>{{ $item->student_name }}</td>
-                <td>{{ $item->total_points }}</td>
+                <td>{{ $classRoom }}</td>
+                <td style="text-align: cernter;">
+                    @if($data)
+                        @php $count = count($data['students']); @endphp
+                        @if($count === 1)
+                            {{ collect($data['students'])->first()->student_name }}
+                        @else
+                            @foreach($data['students'] as $index => $student)
+                                {{ $index + 1 }}. {{ $student->student_name }}<br>
+                            @endforeach
+                        @endif
+                    @else
+                        <span style="text-align: cernter">-------------------ไม่มีผลคะแนน------------------</span>
+                    @endif
+                </td>
+                <td>
+                    {{ $data ? $data['total_points'] : 0 }}
+                </td>
             </tr>
-        @endforeach
+        @empty
+            <tr>
+                <td colspan=" 3">ไม่มีข้อมูลคะแนนในเดือนนี้
+                </td>
+            </tr>
+        @endforelse
     </tbody>
 </table>

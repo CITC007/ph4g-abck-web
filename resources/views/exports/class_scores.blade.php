@@ -5,6 +5,11 @@
     <meta charset="UTF-8" />
     <title>รายงานคะแนนนักเรียนรายชั้น</title>
     <style>
+        @page {
+            size: A4;
+            margin: 0mm 15mm 15mm 15mm;
+        }
+
         @font-face {
             font-family: 'Sarabun';
             src: url("{{ storage_path('fonts/THSarabunNew.ttf') }}") format('truetype');
@@ -12,15 +17,35 @@
             font-style: normal;
         }
 
+        @font-face {
+            font-family: 'Sarabun';
+            src: url("{{ storage_path('fonts/THSarabunNew-Bold.ttf') }}") format('truetype');
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Sarabun';
+            src: url("{{ storage_path('fonts/THSarabunNew-BoldItalic.ttf') }}") format('truetype');
+            font-weight: bold;
+            font-style: italic;
+        }
+
         body {
             font-family: 'Sarabun', sans-serif;
-            font-size: 14pt;
-            margin: 20px;
+            font-size: 16pt;
+            margin: 40px;
         }
 
         .header {
             text-align: center;
             margin-bottom: 20px;
+        }
+
+        .header img {
+            width: 140px;
+            height: auto;
+            margin-bottom: 10px;
         }
 
         .header h1 {
@@ -35,29 +60,35 @@
             font-weight: normal;
         }
 
-        .header img {
-            width: 140px;
-            height: auto;
-            margin-bottom: 10px;
-        }
-
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 5px;
+            margin-top: 20px;
         }
 
         th,
         td {
-            border: 1px solid #333;
-            padding: 3px;
-            text-align: center;
             font-family: 'Sarabun', sans-serif;
-            font-size: 14pt;
+            font-size: 15pt;
+            border: 1px solid #333;
+            padding: 1px;
+            text-align: center;
         }
 
         th {
-            background-color: #eee;
+            background-color: #f0f0f0;
+        }
+
+        .text-muted {
+
+            font-style: italic;
+            color: #888;
+        }
+
+        .timestamp {
+            margin-top: 10px;
+            font-size: 12pt;
+            text-align: right;
         }
     </style>
 </head>

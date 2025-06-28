@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\Score;
+use App\Models\Teacher;
 use Illuminate\Support\Facades\DB;
 
 class ScoreController extends Controller
@@ -13,6 +14,40 @@ class ScoreController extends Controller
     {
         $classRoom = session('teacher_class_room');
         $students = [];
+        $teachers = Teacher::orderBy('teacher_name')->get();
+
+        $orderedRooms = [
+            'ป.1/1',
+            'ป.1/2',
+            'ป.1/3',
+            'ป.1/4',
+            'ป.2/1',
+            'ป.2/2',
+            'ป.2/3',
+            'ป.2/4',
+            'ป.3/1',
+            'ป.3/2',
+            'ป.3/3',
+            'ป.3/4',
+            'ป.4/1',
+            'ป.4/2',
+            'ป.4/3',
+            'ป.4/4',
+            'ป.5/1',
+            'ป.5/2',
+            'ป.5/3',
+            'ป.5/4',
+            'ป.6/1',
+            'ป.6/2',
+            'ป.6/3',
+            'ป.6/4',
+        ];
+
+        // ดึงครูทั้งหมดและจัดเรียงตาม class_room
+        $teachers = Teacher::all()->sortBy(function ($t) use ($orderedRooms) {
+            $index = array_search($t->class_room, $orderedRooms);
+            return $index !== false ? $index : count($orderedRooms); // ถ้าไม่พบ ให้ไปไว้ท้าย
+        });
 
         if ($classRoom) {
             $students = Student::where('class_room', $classRoom)
@@ -23,6 +58,7 @@ class ScoreController extends Controller
         return view('score-entry', [
             'students' => $students,
             'classRoom' => $classRoom,
+            'teachers' => $teachers,
         ]);
     }
 

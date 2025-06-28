@@ -34,7 +34,6 @@
                 <select name="class_room" id="class_room" class="p-2 border rounded text-sm" required>
                     <option value="" disabled selected>-- เลือกชั้นเรียน --</option>
                     @foreach([
-                        'อนุบาลห้อง1', 'อนุบาลห้อง2', 'อนุบาลห้อง3', 'อนุบาลห้อง4',
                         'ป.1/1','ป.1/2','ป.1/3','ป.1/4',
                         'ป.2/1','ป.2/2','ป.2/3','ป.2/4',
                         'ป.3/1','ป.3/2','ป.3/3','ป.3/4',

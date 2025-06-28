@@ -9,14 +9,11 @@
     <link rel="icon" href="/images/heart.png" sizes="32x32" type="image/png" />
 </head>
 
-
 <body class="min-h-screen bg-gray-100 bg-fixed bg-no-repeat bg-center p-4">
-    <div class="fixed  bottom-0 left-0 w-full h-full pointer-events-none" aria-hidden="true">
-        <img src="/images/bg-hearts-light.png" alt="bg hearts" class="w-full h-full object-cover rounded-xl
-        p-auto sm:p-6 rounded-xl shadow-md max-w-5xl mx-auto
-        " />
+    <div class="fixed bottom-0 left-0 w-full h-full pointer-events-none" aria-hidden="true">
+        <img src="/images/bg-hearts-light.png" alt="bg hearts"
+            class="w-full h-full object-cover rounded-xl p-auto sm:p-6 rounded-xl shadow-md max-w-5xl mx-auto" />
     </div>
-
 
     @php
         $thaiMonths = [
@@ -33,7 +30,6 @@
             11 => 'พฤศจิกายน',
             12 => 'ธันวาคม',
         ];
-
         $monthName = $thaiMonths[$currentMonth] ?? '';
         $yearBuddhist = $currentYear + 543;
     @endphp
@@ -44,15 +40,14 @@
         <div class="mb-6">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <!-- โลโก้โรงเรียน -->
-                <div class="hidden sm:block sm:block self-start ml-15">
+                <div class="hidden sm:block self-start ml-15">
                     <img src="/images/school-logo.png" alt="โลโก้โรงเรียน"
                         class="h-28 w-auto transition-transform duration-300 hover:scale-105 hover:brightness-110 hover:drop-shadow-md" />
                 </div>
                 <!-- ปุ่มต่างๆ -->
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3 mt-4 sm:mt-0">
-
                     <a href="{{ url('/score-entry') }}"
-                        class=" px-4 py-2 text-white rounded hover:brightness-110 transition text-center flex items-center justify-center gap-2 text-sm sm:text-base"
+                        class="px-4 py-2 text-white rounded hover:brightness-110 transition text-center flex items-center justify-center gap-2 text-sm sm:text-base"
                         style="background-color: #FF9898;">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
                             class="heartbeat w-5 h-5 shrink-0">
@@ -61,7 +56,6 @@
                         </svg>
                         <span>เพิ่มคะแนนหัวใจให้นักเรียน</span>
                     </a>
-
 
                     <a href="{{ route('report.top_scores') }}"
                         class="px-4 py-2 text-white rounded hover:brightness-110 transition text-center text-sm sm:text-base"
@@ -90,7 +84,7 @@
             <table class="w-full border border-gray-300 text-center shadow-sm rounded-xl overflow-hidden bg-white">
                 <thead class="bg-purple-100 text-purple-800 text-sm sm:text-base">
                     <tr>
-                        <th class="p-3 border">ระดับชั้น</th>
+                        <th class="p-3 border">ห้องเรียน</th>
                         <th class="p-3 border">ชื่อนักเรียน</th>
                         <th class="p-3 border">
                             <div class="inline-flex items-center justify-center gap-1">
@@ -102,15 +96,19 @@
                                 </svg>
                             </div>
                         </th>
-
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($topScores as $item)
                         <tr class="hover:bg-purple-50 transition-colors text-sm sm:text-base">
                             <td class="p-3 border">{{ $item['class_room'] }}</td>
-                            <td class="p-3 border">{{ $item['student_name'] }}</td>
-                            <td class="p-3 border font-semibold text-green-600">{{ $item['total_points'] }}</td>
+                            <td class="p-3 border {{ $item['total_points'] == 0 ? 'text-gray-500 italic' : '' }}">
+                                {{ $item['student_name'] }}
+                            </td>
+                            <td
+                                class="p-3 border font-semibold {{ $item['total_points'] > 0 ? 'text-green-600' : 'text-gray-400' }}">
+                                {{ $item['total_points'] }}
+                            </td>
                         </tr>
                     @empty
                         <tr>
@@ -120,7 +118,6 @@
                 </tbody>
             </table>
         </div>
-
     </div>
 </body>
 

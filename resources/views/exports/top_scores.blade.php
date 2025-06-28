@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <title>รายงานคะแนนสูงสุด</title>
     <style>
+        @page {
+            size: A4;
+            margin: 0mm 15mm 15mm 15mm;
+        }
+
         @font-face {
             font-family: 'Sarabun';
             src: url("{{ storage_path('fonts/THSarabunNew.ttf') }}") format('truetype');
@@ -17,6 +22,13 @@
             src: url("{{ storage_path('fonts/THSarabunNew-Bold.ttf') }}") format('truetype');
             font-weight: bold;
             font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Sarabun';
+            src: url("{{ storage_path('fonts/THSarabunNew-BoldItalic.ttf') }}") format('truetype');
+            font-weight: bold;
+            font-style: italic;
         }
 
         body {
@@ -51,22 +63,35 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 30px;
+            margin-top: 20px;
         }
 
         th,
         td {
             font-family: 'Sarabun', sans-serif;
-            font-size: 16pt;
+            font-size: 15pt;
             border: 1px solid #333;
-            padding: 4px;
+            padding: 1px;
             text-align: center;
         }
 
         th {
             background-color: #f0f0f0;
         }
+
+        .text-muted {
+
+            font-style: italic;
+            color: #888;
+        }
+
+        .timestamp {
+            margin-top: 10px;
+            font-size: 12pt;
+            text-align: right;
+        }
     </style>
+
 </head>
 
 <body>
@@ -86,19 +111,39 @@
         <table>
             <thead>
                 <tr>
-                    <th>ชั้นเรียน</th>
+                    <th>ห้องเรียน</th>
                     <th>ชื่อนักเรียน</th>
                     <th>คะแนนรวม</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($topScores as $item)
+                @forelse($topScores as $classRoom => $data)
                     <tr>
-                        <td>{{ $item->class_room }}</td>
-                        <td>{{ $item->student_name }}</td>
-                        <td>{{ $item->total_points }}</td>
+                        <td>{{ $classRoom }}</td>
+                        <td style="text-align: cernter;">
+                            @if($data)
+                                @php $count = count($data['students']); @endphp
+                                @if($count === 1)
+                                    {{ collect($data['students'])->first()->student_name }}
+                                @else
+                                    @foreach($data['students'] as $index => $student)
+                                        {{ $index + 1 }}. {{ $student->student_name }}<br>
+                                    @endforeach
+                                @endif
+                            @else
+                                <span style="text-align: center; font-size: 14pt; color: #888">-------------------ไม่มีผลคะแนน------------------</span>
+                            @endif
+                        </td>
+                        <td>
+                            {{ $data ? $data['total_points'] : 0 }}
+                        </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan=" 3">ไม่มีข้อมูลคะแนนในเดือนนี้
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     @else

@@ -10,10 +10,9 @@
 </head>
 
 <body class="min-h-screen bg-gray-100 bg-fixed bg-no-repeat bg-center p-4">
-    <div class="fixed  bottom-0 left-0 w-full h-full pointer-events-none" aria-hidden="true">
-        <img src="/images/bg-hearts-light.png" alt="bg hearts" class="w-full h-full object-cover  rounded-xl
-        p-auto sm:p-6 rounded-xl shadow-md max-w-5xl mx-auto
-        " />
+    <div class="fixed bottom-0 left-0 w-full h-full pointer-events-none" aria-hidden="true">
+        <img src="/images/bg-hearts-light.png" alt="bg hearts" class="w-full h-full object-cover rounded-xl
+        p-auto sm:p-6 rounded-xl shadow-md max-w-5xl mx-auto" />
     </div>
 
     <div class="backdrop-blur-sm bg-white/80 p-4 sm:p-6 rounded-xl shadow-md max-w-5xl mx-auto">
@@ -89,14 +88,33 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($topScores as $score)
-                            <tr class="hover:bg-purple-50 transition-colors">
-                                <td class="p-3 border break-words">{{ $score->class_room }}</td>
-                                <td class="p-3 border break-words">{{ $score->student_name }}</td>
-                                <td class="p-3 border font-semibold text-green-600">{{ $score->total_points }}</td>
-                            </tr>
+                        @foreach($topScores as $classRoom => $data)
+                            @if($data && count($data['students']) > 0)
+                                <tr class="hover:bg-purple-50 transition-colors align-top">
+                                    <td class="p-3 border break-words align-top">{{ $classRoom }}</td>
+                                    <td class="p-3 border text-center align-top">
+                                        @if(count($data['students']) === 1)
+                                            {{ $data['students'][0]->student_name }}
+                                        @else
+                                            @foreach($data['students'] as $index => $student)
+                                                {{ $index + 1 }}. {{ $student->student_name }}<br>
+                                            @endforeach
+                                        @endif
+                                    </td>
+                                    <td class="p-3 border font-semibold text-green-600 align-top">{{ $data['total_points'] }}</td>
+                                </tr>
+                            @else
+                                <tr class="hover:bg-purple-50 transition-colors">
+                                    <td class="p-3 border break-words">{{ $classRoom }}</td>
+                                    <td class="p-3 border italic text-gray-500 text-center">ยังไม่มีคะแนนสูงสุด</td>
+                                    <td class="p-3 border font-semibold text-gray-500 text-center">0</td>
+                                </tr>
+                            @endif
                         @endforeach
                     </tbody>
+
+
+
                 </table>
             @else
                 <p class="text-gray-500 mt-4 text-center text-sm">ไม่มีข้อมูลคะแนนสูงสุดในเดือนนี้</p>

@@ -31,10 +31,39 @@ class ReportController extends Controller
             ->orderByDesc('total_points')
             ->get();
 
-        // รวมข้อมูลให้ได้คะแนนสูงสุดแต่ละห้อง
-        $topScores = $scores->groupBy('class_room')->map(function ($group) {
-            return $group->sortByDesc('total_points')->first();
-        });
+        // ดึงรายชื่อห้องทั้งหมดจากตาราง students เพื่อให้แสดงทุกห้อง
+        $allClassRooms = DB::table('students')
+            ->select('class_room')
+            ->distinct()
+            ->orderBy('class_room')
+            ->pluck('class_room');
+
+        // จัดกลุ่มคะแนนตามห้อง
+        $grouped = $scores->groupBy('class_room');
+
+        $topScores = [];
+
+        foreach ($allClassRooms as $classRoom) {
+            if (isset($grouped[$classRoom])) {
+                // ห้องนี้มีคะแนนนักเรียน
+                $studentsInRoom = $grouped[$classRoom];
+
+                // หาคะแนนสูงสุดของห้องนี้
+                $maxPoints = $studentsInRoom->max('total_points');
+
+                // นักเรียนที่ได้คะแนนสูงสุด (อาจหลายคน)
+                $topStudents = $studentsInRoom->where('total_points', $maxPoints);
+
+                // เก็บข้อมูลสำหรับ view
+                $topScores[$classRoom] = [
+                    'students' => $topStudents,
+                    'total_points' => $maxPoints,
+                ];
+            } else {
+                // ห้องนี้ไม่มีคะแนนเลย
+                $topScores[$classRoom] = null;
+            }
+        }
 
         return view('report.top_scores', [
             'topScores' => $topScores,
@@ -42,6 +71,8 @@ class ReportController extends Controller
             'year' => $year,
         ]);
     }
+
+
 
     // รายงานคะแนนรายชั้น (หน้า 4)
     public function classScores(Request $request)
@@ -127,19 +158,42 @@ class ReportController extends Controller
         $year = $request->get('year');
         $format = $request->get('format', 'xlsx');
 
-        // Subquery ดึงคะแนนรวมสูงสุดต่อ class_room
-        $topScores = DB::table('scores')
-            ->select('students.student_name', 'students.class_room', DB::raw('SUM(scores.point) as total_points'))
+        // ดึงคะแนนรวมของนักเรียนแต่ละห้องในเดือนและปีที่เลือก
+        $scores = DB::table('scores')
+            ->select('students.class_room', 'students.student_name', DB::raw('SUM(scores.point) as total_points'))
             ->join('students', 'scores.student_id', '=', 'students.id')
             ->whereMonth('scores.created_at', $month)
             ->whereYear('scores.created_at', $year)
-            ->groupBy('students.id', 'students.student_name', 'students.class_room')
-            ->orderBy('students.class_room')
-            ->get()
-            ->groupBy('class_room')
-            ->map(function ($group) {
-                return $group->sortByDesc('total_points')->first();
-            })->values();
+            ->groupBy('students.class_room', 'students.student_name')
+            ->get();
+
+        // ดึงห้องเรียนทั้งหมด
+        $allClassRooms = DB::table('students')
+            ->select('class_room')
+            ->distinct()
+            ->orderBy('class_room')
+            ->pluck('class_room');
+
+        // จัดกลุ่มตามห้อง
+        $grouped = $scores->groupBy('class_room');
+
+        // เตรียมข้อมูล topScores แบบ array
+        $topScores = [];
+
+        foreach ($allClassRooms as $classRoom) {
+            if (isset($grouped[$classRoom])) {
+                $studentsInRoom = $grouped[$classRoom];
+                $maxPoints = $studentsInRoom->max('total_points');
+                $topStudents = $studentsInRoom->where('total_points', $maxPoints);
+
+                $topScores[$classRoom] = [
+                    'students' => $topStudents,
+                    'total_points' => $maxPoints,
+                ];
+            } else {
+                $topScores[$classRoom] = null;
+            }
+        }
 
         if ($format === 'pdf') {
             $pdf = PDF::loadView('exports.top_scores', [
@@ -152,6 +206,7 @@ class ReportController extends Controller
 
         return Excel::download(new TopScoresExport($topScores, $month, $year), 'top_scores_' . $month . '_' . $year . '.xlsx');
     }
+
 
 
 

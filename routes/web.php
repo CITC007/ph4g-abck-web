@@ -35,7 +35,9 @@ Route::post('/score-entry/save', [ScoreController::class, 'save'])->name('score-
 Route::get('/student-history/{id}', [StudentController::class, 'showHistory'])->name('student.history');
 
 // ระบบล็อกอินครู (จากฟอร์ม popup บนหน้า /score-entry)
-Route::post('/teacher/login', [TeacherAuthController::class, 'login'])->name('teacher.auth.login');
+Route::get('/teacher-login', [TeacherAuthController::class, 'showLoginForm'])->name('teacher.auth.form');
+Route::post('/teacher-login', [TeacherAuthController::class, 'login'])->name('teacher.auth.login');
+
 
 // ระบบ logout ครู (ล้าง session)
 Route::post('/teacher/logout', [TeacherAuthController::class, 'logout'])->name('teacher.auth.logout');

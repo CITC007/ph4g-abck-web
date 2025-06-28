@@ -12,14 +12,9 @@ class DashboardController extends Controller
     public function index()
     {
         $currentMonth = date('n');
-        $currentYear = date('Y'); // ใช้ปี ค.ศ.
+        $currentYear = date('Y');
 
-        // ระดับชั้นทั้งหมด
         $grades = [
-            'อนุบาลห้อง1',
-            'อนุบาลห้อง2',
-            'อนุบาลห้อง3',
-            'อนุบาลห้อง4',
             'ป.1/1',
             'ป.1/2',
             'ป.1/3',
@@ -49,22 +44,39 @@ class DashboardController extends Controller
         $topScores = collect();
 
         foreach ($grades as $class_room) {
-            $studentScore = Score::select('student_id', DB::raw('SUM(point) as total_points'))
-                ->where('month', $currentMonth)
-                ->where('year', $currentYear)
-                ->whereHas('student', function ($q) use ($class_room) {
-                    $q->where('class_room', $class_room);
+            $students = Student::where('class_room', $class_room)
+                ->leftJoin('scores', function ($join) use ($currentMonth, $currentYear) {
+                    $join->on('students.id', '=', 'scores.student_id')
+                        ->whereMonth('scores.created_at', $currentMonth)
+                        ->whereYear('scores.created_at', $currentYear);
                 })
-                ->groupBy('student_id')
+                ->select('students.student_name', 'students.class_room', DB::raw('COALESCE(SUM(scores.point), 0) as total_points'))
+                ->groupBy('students.id', 'students.student_name', 'students.class_room')
                 ->orderByDesc('total_points')
-                ->first();
+                ->orderBy('students.student_name')
+                ->get();
 
-            if ($studentScore && $studentScore->total_points > 0) {
-                $student = Student::find($studentScore->student_id);
+            if ($students->isEmpty() || $students->first()->total_points == 0) {
+                // ไม่มีคะแนน
                 $topScores->push([
                     'class_room' => $class_room,
-                    'student_name' => $student->student_name,
-                    'total_points' => $studentScore->total_points,
+                    'student_name' => 'ยังไม่มีคะแนนสูงสุด',
+                    'total_points' => 0,
+                ]);
+            } else {
+                $maxScore = $students->first()->total_points;
+
+                // นับนักเรียนที่มีคะแนนสูงสุดเท่ากัน
+                $topSame = $students->filter(fn($s) => $s->total_points == $maxScore);
+
+                $suffix = $topSame->count() > 1
+                    ? ' (มีนักเรียนที่ได้คะแนนสูงสุดเท่ากันอีก ' . ($topSame->count() - 1) . ' คน)'
+                    : '';
+
+                $topScores->push([
+                    'class_room' => $class_room,
+                    'student_name' => $topSame->first()->student_name . $suffix,
+                    'total_points' => $maxScore,
                 ]);
             }
         }

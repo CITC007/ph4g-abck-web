@@ -5,6 +5,9 @@
     <title>เพิ่มคะแนนนักเรียน</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     @vite('resources/css/app.css')
+     <style>
+        [x-cloak] { display: none !important; }
+    </style>
     <link rel="icon" href="/images/heart.png" sizes="32x32" type="image/png" />
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
@@ -90,7 +93,6 @@
             <select name="class_room" class="p-2 border rounded w-full sm:w-auto mb-2 sm:mb-0 text-sm sm:text-base">
                 <option value="">-- ทุกชั้นเรียน --</option>
                 @foreach([
-                    'อนุบาลห้อง1', 'อนุบาลห้อง2', 'อนุบาลห้อง3', 'อนุบาลห้อง4',
                     'ป.1/1','ป.1/2','ป.1/3','ป.1/4',
                     'ป.2/1','ป.2/2','ป.2/3','ป.2/4',
                     'ป.3/1','ป.3/2','ป.3/3','ป.3/4',
@@ -165,7 +167,7 @@
                     </button>
                 </form>
             @else
-                <p class="text-gray-500 text-sm sm:text-base">ไม่พบนักเรียนในชั้นเรียนนี้ หรือยังไม่มีข้อมูล</p>
+                <p class="text-gray-500 text-sm sm:text-base">ไม่พบข้อมูลนักเรียน กรุณากดเลือกชั้นเรียนหรือกรอกคำค้นเพื่อแสดงผล</p>
             @endif
         @endif
     </div>
@@ -206,34 +208,23 @@
 
 
     <!-- Popup Login -->
-    <div x-show="showLogin" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+   @if (!session('teacher_id'))
+<div x-show="showLogin" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
     <div class="bg-white/90 backdrop-blur-md p-6 rounded-xl shadow-xl w-full max-w-sm overflow-auto max-h-[90vh]">
-        <h2 class="text-xl font-bold text-purple-800 mb-4 text-center">เข้าสู่ระบบโดยใช้ชื่อครู ?</h2>
+        <h2 class="text-xl font-bold text-purple-800 mb-4 text-center">เข้าสู่ระบบโดยเลือกชื่อครู</h2>
+
         <form action="{{ route('teacher.auth.login') }}" method="POST" class="flex flex-col gap-4">
             @csrf
 
             <div>
                 <label class="block font-medium mb-1 text-gray-700">ชื่อครู</label>
-                <input type="text" name="teacher_name" required
-                    class="w-full p-2 border rounded text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-purple-400"
-                    value="{{ old('teacher_name') }}" />
-            </div>
-
-            <div>
-                <label class="block font-medium mb-1 text-gray-700">ครูประจำชั้นเรียน</label>
-                <select name="class_room" required
+                <select name="teacher_id" required
                     class="w-full p-2 border rounded text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-purple-400">
-                    <option value="" disabled selected>-- เลือกชั้นเรียน --</option>
-                    @foreach([
-                        'อนุบาลห้อง1', 'อนุบาลห้อง2', 'อนุบาลห้อง3', 'อนุบาลห้อง4',
-                        'ป.1/1','ป.1/2','ป.1/3','ป.1/4',
-                        'ป.2/1','ป.2/2','ป.2/3','ป.2/4',
-                        'ป.3/1','ป.3/2','ป.3/3','ป.3/4',
-                        'ป.4/1','ป.4/2','ป.4/3','ป.4/4',
-                        'ป.5/1','ป.5/2','ป.5/3','ป.5/4',
-                        'ป.6/1','ป.6/2','ป.6/3','ป.6/4',
-                    ] as $room)
-                        <option value="{{ $room }}" {{ old('class_room') == $room ? 'selected' : '' }}>{{ $room }}</option>
+                    <option value="" disabled selected>-- เลือกชื่อครู --</option>
+                    @foreach($teachers as $teacher)
+                        <option value="{{ $teacher->id }}">
+                            {{ $teacher->class_room }} ({{ $teacher->teacher_name }})
+                        </option>
                     @endforeach
                 </select>
             </div>
@@ -256,6 +247,8 @@
             </div>
         </form>
     </div>
+</div>
+@endif
 </div>
 
 
