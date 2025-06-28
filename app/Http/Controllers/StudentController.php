@@ -16,7 +16,7 @@ class StudentController extends Controller
         // ดึงคะแนนทั้งหมดของนักเรียนคนนี้ (เรียงจากล่าสุด), paginate 30 รายการต่อหน้า
         $scores = Score::where('student_id', $id)
             ->orderBy('created_at', 'desc')
-            ->paginate(15);
+            ->paginate(10);
 
         // คำนวณคะแนนรวมทั้งหมด (ยังใช้ get() แยกอีกครั้ง)
         $totalPoints = Score::where('student_id', $id)->sum('point');

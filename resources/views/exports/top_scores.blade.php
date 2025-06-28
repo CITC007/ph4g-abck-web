@@ -134,7 +134,13 @@
                                 <span style="text-align: center; font-size: 14pt; color: #888">-------------------ไม่มีผลคะแนน------------------</span>
                             @endif
                         </td>
-                        <td>
+                        <td style=" text-align: cernter;
+                           @if(!isset($data['total_points']) || $data['total_points'] === 0)
+                                font-size: 14pt; color: #888
+                            @else
+                                 color: #000
+                            @endif
+                        ">
                             {{ $data ? $data['total_points'] : 0 }}
                         </td>
                     </tr>

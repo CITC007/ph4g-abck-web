@@ -129,6 +129,25 @@ class ScoreController extends Controller
             }
         }
 
-        return redirect()->route('score-entry.form')->with('success', 'บันทึกคะแนนเรียบร้อยแล้ว');
+        // ตรวจสอบว่ามาจากหน้า student-history หรือไม่
+        if (str_contains(url()->previous(), '/student-history/')) {
+            return redirect(url()->previous())->with('success', 'บันทึกคะแนนเรียบร้อยแล้ว');
+        } else {
+            // ดึงค่า keyword และ class_room จาก request ที่ส่งมาจากหน้าฟอร์มค้นหา
+            $currentKeyword = $request->input('keyword');
+            $currentClassRoom = $request->input('class_room');
+
+            // ถ้ามีการค้นหา (มี keyword หรือ class_room) ให้ redirect กลับไปที่ route search พร้อม parameter เดิม
+            if (!empty($currentKeyword) || !empty($currentClassRoom)) {
+                return redirect()->route('score-entry.search', [
+                    'keyword' => $currentKeyword,
+                    'class_room' => $currentClassRoom
+                ])->with('success', 'บันทึกคะแนนเรียบร้อยแล้ว');
+            }
+            // หากไม่มีการค้นหา (หรือมาจากการเข้าหน้า score-entry.form โดยตรง)
+            else {
+                return redirect()->route('score-entry.form')->with('success', 'บันทึกคะแนนเรียบร้อยแล้ว');
+            }
+        }
     }
 }
