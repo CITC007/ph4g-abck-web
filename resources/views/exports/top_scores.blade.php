@@ -120,7 +120,7 @@
                 @forelse($topScores as $classRoom => $data)
                     <tr>
                         <td>{{ $classRoom }}</td>
-                        <td style="text-align: cernter;">
+                        <td style="text-align: center;">
                             @if($data)
                                 @php $count = count($data['students']); @endphp
                                 @if($count === 1)
@@ -134,7 +134,7 @@
                                 <span style="text-align: center; font-size: 14pt; color: #888">-------------------ไม่มีผลคะแนน------------------</span>
                             @endif
                         </td>
-                        <td style=" text-align: cernter;
+                        <td style=" text-align: center;
                            @if(!isset($data['total_points']) || $data['total_points'] === 0)
                                 font-size: 14pt; color: #888
                             @else
