@@ -104,7 +104,6 @@
                     <thead class="bg-purple-100 text-purple-800">
                         <tr>
                             <th class="p-3 border w-1/6">เลขที่</th>
-                            <th class="p-3 border w-1/6">รหัส</th>
                             <th class="p-3 border break-words">ชื่อนักเรียน</th>
                             <th class="p-3 border w-1/6">ชั้นเรียน</th>
                             <th class="p-3 border w-1/6">คะแนนสะสม</th>
@@ -114,7 +113,6 @@
                         @foreach($classScores as $student)
                             <tr class="hover:bg-purple-50 transition-colors">
                                 <td class="p-3 border break-words">{{ $student->student_number }}</td>
-                                <td class="p-3 border break-words">{{ $student->student_code }}</td>
                                 <td class="p-3 border break-words">{{ $student->student_name }}</td>
                                 <td class="p-3 border">{{ $student->class_room }}</td>
                                 <td class="p-3 border font-semibold text-green-600">{{ $student->scores_sum_point ?? 0 }}</td>

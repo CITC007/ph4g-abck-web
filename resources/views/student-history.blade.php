@@ -128,15 +128,15 @@
                             </td>
                             <td class="p-2 sm:p-3 border border-gray-300 text-left break-words whitespace-normal">
                                 <div x-data="{
-                                    fullText: `{{ str_replace('`', '\`', $score->reason) }}`,
-                                    showFull: false,
-                                    maxLength: 70,
-                                    get truncatedText() {
-                                        return this.fullText.length > this.maxLength ?
-                                               this.fullText.substring(0, this.maxLength) + '...' :
-                                               this.fullText;
-                                    }
-                                }">
+                                        fullText: `{{ str_replace('`', '\`', $score->reason) }}`,
+                                        showFull: false,
+                                        maxLength: 70,
+                                        get truncatedText() {
+                                            return this.fullText.length > this.maxLength ?
+                                                   this.fullText.substring(0, this.maxLength) + '...' :
+                                                   this.fullText;
+                                        }
+                                    }">
                                     <span x-text="showFull ? fullText : truncatedText"
                                         class="block break-words whitespace-normal"></span>
                                     <template x-if="fullText.length > maxLength">
@@ -204,21 +204,29 @@
                             class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs hover:bg-green-200 transition">
                             มีจิตสาธารณะ
                         </button>
-                        <button type="button" @click="reasonText = 'ทำความสะอาดห้องเรียน'"
+                        <button type="button" @click="reasonText = 'ปฏิบัติตามกฏระเบียบของโรงเรียน'"
                             class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs hover:bg-yellow-200 transition">
-                            ทำความสะอาดห้องเรียน
+                            ปฏิบัติตามกฏระเบียบของโรงเรียน
                         </button>
-                        <button type="button" @click="reasonText = 'ส่งงานตรงเวลา'"
+                        <button type="button" @click="reasonText = 'มีวินัย'"
                             class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs hover:bg-purple-200 transition">
-                            ส่งงานตรงเวลา
+                            มีวินัย
                         </button>
-                        <button type="button" @click="reasonText = 'มีความเอื้อเฟื้อเผื่อแผ่'"
+                        <button type="button" @click="reasonText = 'มีน้ำใจและช่วยเหลือผู้อื่น'"
                             class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs hover:bg-red-200 transition">
-                            มีความเอื้อเฟื้อเผื่อแผ่
+                            มีน้ำใจและช่วยเหลือผู้อื่น
                         </button>
-                        <button type="button" @click="reasonText = 'ตั้งใจเรียน'"
+                        <button type="button" @click="reasonText = 'มีความรับผิดชอบ'"
+                            class="px-3 py-1 bg-indigo-100 text-orange-800 rounded-full text-xs hover:bg-orange-200 transition">
+                            มีความรับผิดชอบ
+                        </button>
+                        <button type="button" @click="reasonText = 'มีมารยาทที่ดี'"
+                            class="px-3 py-1 bg-indigo-100 text-lime-800 rounded-full text-xs hover:bg-lime-200 transition">
+                            มีมารยาทที่ดี
+                        </button>
+                        <button type="button" @click="reasonText = 'มีส่วนร่วมในกิจกรรมของโรงเรียน'"
                             class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs hover:bg-indigo-200 transition">
-                            ตั้งใจเรียน
+                            มีส่วนร่วมในกิจกรรมของโรงเรียน
                         </button>
                     </div>
                 </div>

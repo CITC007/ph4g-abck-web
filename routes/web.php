@@ -19,7 +19,7 @@ Route::get('/report/top-scores/export', [ReportController::class, 'exportTopScor
 
 // รายงานคะแนนรายชั้น (หน้า 4)
 Route::get('/report/class-scores', [ReportController::class, 'classScores'])->name('report.class_scores');
-Route::post('/report/class-scores/download', [ReportController::class, 'downloadClassScores'])->name('report.class-scores.download');
+// Route::post('/report/class-scores/download', [ReportController::class, 'downloadClassScores'])->name('report.class-scores.download');
 Route::get('/report/class-scores/export', [ReportController::class, 'exportClassScores'])->name('report.class_scores_export');
 
 // หน้าเพิ่มคะแนนนักเรียน (ต้องล็อกอินครูก่อน)
@@ -45,7 +45,7 @@ Route::post('/teacher-login', [TeacherAuthController::class, 'login'])->name('te
 Route::post('/teacher/logout', [TeacherAuthController::class, 'logout'])->name('teacher.auth.logout');
 
 //download Export file
-Route::get('/report/top-scores/export/pdf', [ReportController::class, 'exportTopScores'])->name('report.top_scores_export');
+// Route::get('/report/top-scores/export/pdf', [ReportController::class, 'exportTopScores'])->name('report.top_scores_export');
 
 Route::get('/report/class-scores/download', [ReportController::class, 'exportClassScores'])->name('report.class-scores.download');
 
