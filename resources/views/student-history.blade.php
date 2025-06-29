@@ -106,21 +106,16 @@
         </div>
 
         <div class="backdrop-blur-sm bg-white/80 p-4 sm:p-6 rounded-xl shadow-md max-w-full sm:max-w-4xl mx-auto">
-            {{-- ลบ div ที่มี overflow-x-auto ออกไปแล้ว --}}
-            <table class="w-full text-center text-xs sm:text-sm rounded-lg border border-gray-300">
+            <table class="table-fixed w-full text-center text-xs sm:text-sm rounded-lg border border-gray-300">
                 <thead class="bg-purple-100 text-purple-800">
                     <tr>
-                        {{-- ปรับคลาส th: ลบ min-w ออกเพื่อการปรับขนาดที่ยืดหยุ่นกว่า --}}
-                        <th class="p-2 sm:p-3 border border-gray-300 whitespace-nowrap text-xxs sm:text-xs">
+                        <th class="p-2 sm:p-3 border border-gray-300 w-[25%] text-xxs sm:text-xs">
                             วันที่ได้รับ
                         </th>
-                        {{-- ปรับคลาส th: ใช้ w-full ร่วมกับ break-words
-                        เพื่อให้คอลัมน์เหตุผลปรับความกว้างอัตโนมัติและข้อความขึ้นบรรทัดใหม่ --}}
-                        <th class="p-2 sm:p-3 border border-gray-300 text-left w-full break-words">
+                        <th class="p-2 sm:p-3 border border-gray-300 w-[50%] text-center break-words whitespace-normal">
                             รายการความดี
                         </th>
-                        {{-- ปรับคลาส th: ลบ min-w ออก --}}
-                        <th class="p-2 sm:p-3 border border-gray-300 whitespace-nowrap text-xxs sm:text-xs">
+                        <th class="p-2 sm:p-3 border border-gray-300 w-[25%] text-xxs sm:text-xs">
                             ครูผู้ให้คะแนน
                         </th>
                     </tr>
@@ -128,23 +123,22 @@
                 <tbody>
                     @forelse($scores as $score)
                         <tr class="hover:bg-purple-50 transition-colors text-xs sm:text-base">
-                            <td class="p-2 sm:p-3 border border-gray-300 whitespace-nowrap text-xxs sm:text-sm">
+                            <td class="p-2 sm:p-3 border border-gray-300 text-xxs sm:text-sm break-words whitespace-normal">
                                 {{ $score->created_at->format('d/m/Y') }}
                             </td>
-                            <td class="p-2 sm:p-3 border border-gray-300 text-left">
+                            <td class="p-2 sm:p-3 border border-gray-300 text-left break-words whitespace-normal">
                                 <div x-data="{
-                                fullText: `{{ str_replace('`', '\`', $score->reason) }}`,
-                                showFull: false,
-                                maxLength: 70, // ปรับลดค่า maxLength ลงเพื่อให้พอดีกับจอเล็กๆ มากขึ้น
-                                get truncatedText() {
-                                    return this.fullText.length > this.maxLength ?
-                                           this.fullText.substring(0, this.maxLength) + '...' :
-                                           this.fullText;
-                                }
-                            }">
-                                    {{-- เพิ่ม class="break-words" ตรงนี้อีกครั้งเพื่อให้แน่ใจว่าข้อความยาวๆ
-                                    จะขึ้นบรรทัดใหม่ --}}
-                                    <span x-text="showFull ? fullText : truncatedText" class="block break-words"></span>
+                                    fullText: `{{ str_replace('`', '\`', $score->reason) }}`,
+                                    showFull: false,
+                                    maxLength: 70,
+                                    get truncatedText() {
+                                        return this.fullText.length > this.maxLength ?
+                                               this.fullText.substring(0, this.maxLength) + '...' :
+                                               this.fullText;
+                                    }
+                                }">
+                                    <span x-text="showFull ? fullText : truncatedText"
+                                        class="block break-words whitespace-normal"></span>
                                     <template x-if="fullText.length > maxLength">
                                         <button @click="showFull = !showFull"
                                             class="text-blue-600 hover:underline ml-1 text-xxs sm:text-sm">
@@ -153,7 +147,7 @@
                                     </template>
                                 </div>
                             </td>
-                            <td class="p-2 sm:p-3 border border-gray-300 whitespace-nowrap text-xxs sm:text-sm">
+                            <td class="p-2 sm:p-3 border border-gray-300 text-xxs sm:text-sm break-words whitespace-normal">
                                 {{ optional($score->teacher)->teacher_name ?? 'ไม่ทราบ' }}
                             </td>
                         </tr>
@@ -166,9 +160,11 @@
             </table>
         </div>
 
-        <div class="mt-6 max-w-full sm:max-w-4xl mx-auto text-center">
-            {{ $scores->links() }}
-        </div>
+    </div>
+
+    <div class="mt-6 max-w-full sm:max-w-4xl mx-auto text-center">
+        {{ $scores->links() }}
+    </div>
 
     </div>
 
@@ -204,9 +200,9 @@
                             class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs hover:bg-blue-200 transition">
                             มีความซื่อสัตย์
                         </button>
-                        <button type="button" @click="reasonText = 'ช่วยเหลือเพื่อน'"
+                        <button type="button" @click="reasonText = 'มีจิตสาธารณะ'"
                             class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs hover:bg-green-200 transition">
-                            ช่วยเหลือเพื่อน
+                            มีจิตสาธารณะ
                         </button>
                         <button type="button" @click="reasonText = 'ทำความสะอาดห้องเรียน'"
                             class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs hover:bg-yellow-200 transition">
@@ -216,9 +212,9 @@
                             class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs hover:bg-purple-200 transition">
                             ส่งงานตรงเวลา
                         </button>
-                        <button type="button" @click="reasonText = 'มีน้ำใจ'"
+                        <button type="button" @click="reasonText = 'มีความเอื้อเฟื้อเผื่อแผ่'"
                             class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs hover:bg-red-200 transition">
-                            มีน้ำใจ
+                            มีความเอื้อเฟื้อเผื่อแผ่
                         </button>
                         <button type="button" @click="reasonText = 'ตั้งใจเรียน'"
                             class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs hover:bg-indigo-200 transition">

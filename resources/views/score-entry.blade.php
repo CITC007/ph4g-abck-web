@@ -276,9 +276,9 @@
                             class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs hover:bg-blue-200 transition">
                         มีความซื่อสัตย์
                     </button>
-                    <button type="button" @click="reasonText = 'ช่วยเหลือเพื่อน'"
+                    <button type="button" @click="reasonText = 'มีจิตสาธารณะ'"
                             class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs hover:bg-green-200 transition">
-                        ช่วยเหลือเพื่อน
+                        มีจิตสาธารณะ
                     </button>
                     <button type="button" @click="reasonText = 'ทำความสะอาดห้องเรียน'"
                             class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs hover:bg-yellow-200 transition">
@@ -288,9 +288,9 @@
                             class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs hover:bg-purple-200 transition">
                         ส่งงานตรงเวลา
                     </button>
-                    <button type="button" @click="reasonText = 'มีน้ำใจ'"
+                    <button type="button" @click="reasonText = 'มีความเอื้อเฟื้อเผื่อแผ่'"
                             class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs hover:bg-red-200 transition">
-                        มีน้ำใจ
+                        มีความเอื้อเฟื้อเผื่อแผ่
                     </button>
                     <button type="button" @click="reasonText = 'ตั้งใจเรียน'"
                             class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs hover:bg-indigo-200 transition">
