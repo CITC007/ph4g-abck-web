@@ -128,15 +128,15 @@
                             </td>
                             <td class="p-2 sm:p-3 border border-gray-300 text-left break-words whitespace-normal">
                                 <div x-data="{
-                                                    fullText: `{{ str_replace('`', '\`', $score->reason) }}`,
-                                                    showFull: false,
-                                                    maxLength: 70,
-                                                    get truncatedText() {
-                                                        return this.fullText.length > this.maxLength ?
-                                                               this.fullText.substring(0, this.maxLength) + '...' :
-                                                               this.fullText;
-                                                    }
-                                                }">
+                                        fullText: `{{ str_replace('`', '\`', $score->reason) }}`,
+                                        showFull: false,
+                                        maxLength: 70,
+                                        get truncatedText() {
+                                            return this.fullText.length > this.maxLength ?
+                                                   this.fullText.substring(0, this.maxLength) + '...' :
+                                                   this.fullText;
+                                        }
+                                    }">
                                     <span x-text="showFull ? fullText : truncatedText"
                                         class="block break-words whitespace-normal"></span>
                                     <template x-if="fullText.length > maxLength">
@@ -201,32 +201,24 @@
                             มีความซื่อสัตย์
                         </button>
                         <button type="button" @click="reasonText = 'มีจิตสาธารณะ'"
-                            class="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs hover:bg-emerald-200 transition">
+                            class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs hover:bg-green-200 transition">
                             มีจิตสาธารณะ
                         </button>
-                        <button type="button" @click="reasonText = 'ปฏิบัติตามกฏระเบียบของโรงเรียน'"
-                            class="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs hover:bg-orange-200 transition">
-                            ปฏิบัติตามกฏระเบียบของโรงเรียน
+                        <button type="button" @click="reasonText = 'ทำความสะอาดห้องเรียน'"
+                            class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs hover:bg-yellow-200 transition">
+                            ทำความสะอาดห้องเรียน
                         </button>
-                        <button type="button" @click="reasonText = 'มีวินัย'"
-                            class="px-3 py-1 bg-fuchsia-100 text-fuchsia-800 rounded-full text-xs hover:bg-fuchsia-200 transition">
-                            มีวินัย
+                        <button type="button" @click="reasonText = 'ส่งงานตรงเวลา'"
+                            class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs hover:bg-purple-200 transition">
+                            ส่งงานตรงเวลา
                         </button>
-                        <button type="button" @click="reasonText = 'มีน้ำใจและช่วยเหลือผู้อื่น'"
-                            class="px-3 py-1 bg-rose-100 text-rose-800 rounded-full text-xs hover:bg-rose-200 transition">
-                            มีน้ำใจและช่วยเหลือผู้อื่น
+                        <button type="button" @click="reasonText = 'มีความเอื้อเฟื้อเผื่อแผ่'"
+                            class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs hover:bg-red-200 transition">
+                            มีความเอื้อเฟื้อเผื่อแผ่
                         </button>
-                        <button type="button" @click="reasonText = 'มีความรับผิดชอบ'"
-                            class="px-3 py-1 bg-teal-100 text-teal-800 rounded-full text-xs hover:bg-teal-200 transition">
-                            มีความรับผิดชอบ
-                        </button>
-                        <button type="button" @click="reasonText = 'มีมารยาทที่ดี'"
-                            class="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs hover:bg-amber-200 transition">
-                            มีมารยาทที่ดี
-                        </button>
-                        <button type="button" @click="reasonText = 'มีส่วนร่วมในกิจกรรมของโรงเรียน'"
-                            class="px-3 py-1 bg-violet-100 text-violet-800 rounded-full text-xs hover:bg-violet-200 transition">
-                            มีส่วนร่วมในกิจกรรมของโรงเรียน
+                        <button type="button" @click="reasonText = 'ตั้งใจเรียน'"
+                            class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs hover:bg-indigo-200 transition">
+                            ตั้งใจเรียน
                         </button>
                     </div>
                 </div>
