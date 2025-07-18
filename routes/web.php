@@ -6,6 +6,8 @@ use App\Http\Controllers\ScoreController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\ScoreHistoryController;
 
 // หน้าแรก dashboard แสดงคะแนนสูงสุด
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
@@ -49,3 +51,24 @@ Route::post('/teacher/logout', [TeacherAuthController::class, 'logout'])->name('
 
 Route::get('/report/class-scores/download', [ReportController::class, 'exportClassScores'])->name('report.class-scores.download');
 
+// --- Certificate Management Routes ---
+Route::get('/certificates', [CertificateController::class, 'index'])->name('certificates.index');
+Route::post('/certificates/save', [CertificateController::class, 'saveAndGenerateCertificates'])->name('certificates.save'); // Adjusted name for consistency
+Route::post('/certificates/download/selected', [CertificateController::class, 'downloadSelectedCertificates'])->name('certificates.downloadSelected'); // Adjusted name for consistency
+
+// Route สำหรับแสดงฟอร์มกรอก PIN (ถ้ายังไม่ผ่านการยืนยัน)
+Route::get('/certificates/pin', [CertificateController::class, 'showPinForm'])->name('certificates.pin.show');
+
+// Route สำหรับรับค่า PIN ที่ส่งมาจากฟอร์ม (POST)
+Route::post('/certificates/pin', [CertificateController::class, 'processPin'])->name('certificates.pin.process');
+
+// Route สำหรับ Logout (จะล้างค่า Session การยืนยัน PIN)
+Route::post('/certificates/logout', [CertificateController::class, 'logout'])->name('certificates.logout');
+
+// --- Student History Route (สำหรับ QR Code) ---
+// ตรวจสอบให้แน่ใจว่าคุณมี route นี้และ method ใน StudentController
+Route::get('/students/{student}/history', [StudentController::class, 'showHistory'])->name('students.history');
+
+Route::get('/certificate/{certificate}/score-history', [ScoreHistoryController::class, 'show'])
+    ->name('certificates.score_history')
+    ->middleware('signed');

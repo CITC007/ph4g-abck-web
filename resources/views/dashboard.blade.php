@@ -40,14 +40,14 @@
         <div class="mb-6">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <!-- โลโก้โรงเรียน -->
-                <div class="hidden sm:block self-start ml-15">
+                <div class="hidden sm:block self-start ml-1">
                     <img src="/images/school-logo.png" alt="โลโก้โรงเรียน"
                         class="h-28 w-auto transition-transform duration-300 hover:scale-105 hover:brightness-110 hover:drop-shadow-md" />
                 </div>
                 <!-- ปุ่มต่างๆ -->
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3 mt-4 sm:mt-0">
                     <a href="{{ url('/score-entry') }}"
-                        class="px-4 py-2 text-white rounded hover:brightness-110 transition text-center flex items-center justify-center gap-2 text-sm sm:text-base"
+                        class="px-4 py-2 text-white rounded hover:brightness-110 transition text-center flex items-center justify-center gap-2 text-sm sm:text-base whitespace-nowrap"
                         style="background-color: #FF9898;">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
                             class="heartbeat w-5 h-5 shrink-0">
@@ -58,15 +58,19 @@
                     </a>
 
                     <a href="{{ route('report.top_scores') }}"
-                        class="px-4 py-2 text-white rounded hover:brightness-110 transition text-center text-sm sm:text-base"
+                        class="whitespace-nowrap px-4 py-2 text-white rounded hover:brightness-110 transition text-center text-sm sm:text-base"
                         style="background-color: #9B7EBD;">
                         รายงานคะแนนสูงสุดแต่ละเดือน
                     </a>
 
                     <a href="{{ route('report.class_scores') }}"
-                        class="px-4 py-2 text-white rounded hover:brightness-110 transition text-center text-sm sm:text-base"
+                        class="whitespace-nowrap px-4 py-2 text-white rounded hover:brightness-110 transition text-center text-sm sm:text-base"
                         style="background-color: #7F55B1;">
                         รายงานคะแนนรายชั้นเรียน
+                    </a> <a href="{{ route('certificates.index') }}"
+                        class="hidden sm:block whitespace-nowrap px-4 py-2 text-white rounded hover:brightness-110 transition text-center text-sm sm:text-base"
+                        style="background-color:rgb(99, 42, 168);">
+                        ออกใบประกาศ
                     </a>
                 </div>
             </div>

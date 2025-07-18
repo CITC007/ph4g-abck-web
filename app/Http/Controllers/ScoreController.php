@@ -7,6 +7,7 @@ use App\Models\Student;
 use App\Models\Score;
 use App\Models\Teacher;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ScoreController extends Controller
 {
@@ -49,10 +50,25 @@ class ScoreController extends Controller
             return $index !== false ? $index : count($orderedRooms); // ถ้าไม่พบ ให้ไปไว้ท้าย
         });
 
+        // if ($classRoom) {
+        //     $students = Student::where('class_room', $classRoom)
+        //         ->withSum('scores', 'point')
+        //         ->get();
+        // }
         if ($classRoom) {
             $students = Student::where('class_room', $classRoom)
-                ->withSum('scores', 'point')
-                ->get();
+                ->with([
+                    'scores' => function ($query) {
+                        $query->whereMonth('created_at', Carbon::now()->month)
+                            ->whereYear('created_at', Carbon::now()->year);
+                    }
+                ])
+                ->get()
+                ->map(function ($student) {
+                    // รวมคะแนนเฉพาะของเดือนปัจจุบัน
+                    $student->scores_sum_point = $student->scores->sum('point');
+                    return $student;
+                });
         }
 
         return view('score-entry', [

@@ -19,5 +19,9 @@ class Student extends Model
     {
         return $this->hasMany(Score::class);
     }
+    public function certificates()
+    {
+        return $this->hasMany(Certificate::class);
+    }
 
 }
