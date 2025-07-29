@@ -72,3 +72,5 @@ Route::get('/students/{student}/history', [StudentController::class, 'showHistor
 Route::get('/certificate/{certificate}/score-history', [ScoreHistoryController::class, 'show'])
     ->name('certificates.score_history')
     ->middleware('signed');
+
+Route::post('/score-entry/select-top-student', [ScoreController::class, 'selectTopStudent'])->name('score-entry.select-top-student');

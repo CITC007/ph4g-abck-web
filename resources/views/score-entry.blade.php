@@ -55,14 +55,15 @@
         studentId: null,
         studentName: '',
         isBulk: false,
-        reasonText: '', // *** เพิ่มตัวแปรนี้เข้ามา ***
+        reasonText: '',
         showLogin: {{ session()->has('teacher_name') ? 'false' : 'true' }},
+        // เพิ่มตัวแปรนี้สำหรับควบคุมการแสดงผลส่วนเลือกนักเรียนดีเด่น
+        showTopStudentSelection: {{ $topStudentsInClass->isNotEmpty() && !$topStudentAwarded ? 'true' : 'false' }},
         prepareBulkAndSubmit(e) {
-            // ... โค้ดเดิม ...
             if (this.isBulk) {
                 const selected = document.querySelectorAll('input[name=\'selected_students[]\']:checked');
                 if (selected.length === 0) {
-                    alert('กรุณาเลือกนักเรียนอย่างน้อย 1 คนก่อนเพิ่มคะแนน (จาก prepareBulkAndSubmit)');
+                    alert('กรุณาเลือกนักเรียนอย่างน้อย 1 คนก่อนเพิ่มคะแนน');
                     return;
                 }
                 selected.forEach(cb => {
@@ -76,7 +77,6 @@
             e.target.submit();
         },
         checkAndShowBulkModal() {
-            // ... โค้ดเดิม ...
             const selectedStudents = document.querySelectorAll('.student-checkbox:checked');
             if (selectedStudents.length === 0) {
                 alert('กรุณาเลือกนักเรียนอย่างน้อย 1 คนก่อนเพิ่มคะแนน');
@@ -85,19 +85,19 @@
                 this.studentId = null;
                 this.studentName = '';
                 this.show = true;
-                this.reasonText = ''; // *** เพิ่มบรรทัดนี้เพื่อรีเซ็ตเหตุผลเมื่อเปิด Modal ***
+                this.reasonText = '';
             }
         }
-    }"
-    x-init="
+      }"
+      x-init="
         $watch('show', value => {
             if (!value) {
                 document.getElementById('select-all').checked = false;
                 document.querySelectorAll('.student-checkbox').forEach(cb => cb.checked = false);
-                this.reasonText = ''; // *** เพิ่มบรรทัดนี้เพื่อรีเซ็ตเหตุผลเมื่อปิด Modal ***
+                this.reasonText = '';
             }
         });
-    "
+      "
 >
     {{-- Background Image (Layer 0) --}}
     <div class="fixed bottom-0 left-0 w-full h-full pointer-events-none" aria-hidden="true">
@@ -109,7 +109,7 @@
 
         <a href="{{ route('dashboard') }}"
            class="inline-block mb-4 px-3 py-1.5 bg-purple-100 text-purple-800 rounded hover:bg-purple-200 transition text-xs sm:text-sm">
-           ← กลับหน้าแรก
+            ← กลับหน้าแรก
         </a>
 
         <h1 class="text-lg sm:text-2xl font-bold text-center text-purple-700 mb-6">เพิ่มคะแนนให้นักเรียน</h1>
@@ -117,6 +117,12 @@
         @if(session('success'))
             <div class="mb-4 p-3 bg-green-100 border border-green-300 rounded text-green-800 text-sm sm:text-base">
                 {{ session('success') }}
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="mb-4 p-3 bg-red-100 border border-red-300 rounded text-red-800 text-sm sm:text-base">
+                {{ session('error') }}
             </div>
         @endif
 
@@ -150,12 +156,65 @@
                         'ป.5/1','ป.5/2','ป.5/3','ป.5/4',
                         'ป.6/1','ป.6/2','ป.6/3','ป.6/4',
                     ] as $room)
-                        <option value="{{ $room }}">{{ $room }}</option>
+                        <option value="{{ $room }}" {{ $classRoom == $room ? 'selected' : '' }}>{{ $room }}</option>
                     @endforeach
                 </select>
                 <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded w-full sm:w-auto text-sm sm:text-base">ค้นหา</button>
             </form>
         @endif
+
+        {{--- ส่วนใหม่: การเลือกนักเรียนดีเด่นกรณีคะแนนสูงสุดซ้ำ ---}}
+        @if(session()->has('teacher_name'))
+            <div x-show="showTopStudentSelection" x-cloak
+                 class="mb-6 p-4 border border-blue-300 bg-blue-50 rounded-lg shadow-md">
+                <h2 class="text-lg font-bold text-blue-700 mb-3 text-center">
+                    เลือกนักเรียนดีเด่นประจำเดือน {{ $previousMonthYearForDisplay }} ({{ session('teacher_class_room') }})
+                </h2>
+                @if($topStudentAwarded)
+                    <p class="text-green-600 font-semibold text-center py-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block mr-2 align-middle" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        ห้องเรียนของคุณได้มอบรางวัลนักเรียนดีเด่นสำหรับเดือนนี้เรียบร้อยแล้ว
+                    </p>
+                @elseif($topStudentsInClass->isNotEmpty())
+                    <p class="text-gray-700 mb-4 text-center">
+                        พบนักเรียนที่ได้คะแนนความดีสูงสุดเท่ากันจำนวน <strong class="text-blue-600">{{ $topStudentsInClass->count() }}</strong> คน
+                        โปรดเลือก <strong class="text-purple-600">1 คน</strong> เพื่อรับรางวัลนักเรียนดีเด่น:
+                    </p>
+                    <form action="{{ route('score-entry.select-top-student') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="class_room" value="{{ session('teacher_class_room') }}">
+                        <div class="space-y-3 mb-4">
+                            @foreach($topStudentsInClass as $student)
+                                <label class="flex items-center p-3 bg-white border border-gray-200 rounded-md shadow-sm cursor-pointer hover:bg-gray-50 transition-colors">
+                                    <input type="radio" name="selected_top_student_id" value="{{ $student->id }}" required
+                                           class="form-radio text-blue-600 h-5 w-5 mr-3">
+                                    <span class="text-gray-800 font-medium flex-grow">{{ $student->student_name }}</span>
+                                    <span class="ml-auto text-blue-600 font-bold">{{ $student->scores_sum_point }} คะแนน</span>
+                                </label>
+                            @endforeach
+                        </div>
+                        <div class="flex justify-center sm:justify-end">
+                            <button type="submit"
+                                    class="px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200 text-sm sm:text-base w-full sm:w-auto">
+                                ยืนยันการเลือกนักเรียน
+                            </button>
+                        </div>
+                    </form>
+                @else
+                    {{-- อันนี้จะถูกซ่อนด้วย x-show หาก topStudentsInClass->isNotEmpty() เป็น false หรือ topStudentAwarded เป็น true --}}
+                    {{-- แต่ถ้า x-show เป็น false อยู่แล้ว ก็จะไม่แสดงเลย --}}
+                    {{-- เพิ่มข้อความที่เหมาะสมหากไม่มีนักเรียนที่เข้าเงื่อนไขให้เลือก --}}
+                    @if(!$topStudentAwarded && $classRoom && $students->isNotEmpty())
+                        <p class="text-gray-600 text-center py-2">
+                            ไม่มีนักเรียนที่มีคะแนนสูงสุดซ้ำกันในห้องของคุณสำหรับเดือนนี้ หรือยังไม่มีนักเรียนที่มีคะแนนสะสมที่สามารถเป็นนักเรียนดีเด่นได้
+                        </p>
+                    @endif
+                @endif
+            </div>
+        @endif
+        {{--- สิ้นสุดส่วนใหม่ ---}}
 
         @if(session()->has('teacher_name'))
             @if(count($students) > 0)
@@ -168,7 +227,7 @@
                                 <th class="p-3 border">
                                     <input type="checkbox" id="select-all"
                                         @click="const checked = $event.target.checked;
-                                                document.querySelectorAll('.student-checkbox').forEach(cb => cb.checked = checked);"
+                                                    document.querySelectorAll('.student-checkbox').forEach(cb => cb.checked = checked);"
                                     >
                                 </th>
                                 <th class="p-3 border">เพิ่ม</th>
@@ -191,8 +250,8 @@
                                                  stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mx-auto">
                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                       d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312
-                                                         2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0
-                                                         7.22 9 12 9 12s9-4.78 9-12Z" />
+                                                          2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0
+                                                          7.22 9 12 9 12s9-4.78 9-12Z" />
                                             </svg>
                                         </button>
                                     </td>
@@ -232,86 +291,76 @@
 
     {{-- ปุ่ม "เพิ่มคะแนนให้รายการที่เลือก" (Fixed Button สำหรับ Mobile) --}}
     {{-- จะแสดงเมื่อหน้าจอเล็กกว่า sm: (640px) เท่านั้น --}}
-  @if(session()->has('teacher_name') && count($students) > 0)
-    <div class="fixed bottom-0 left-0 w-full p-4 bg-white/90 backdrop-blur-sm z-20 sm:hidden">
-        <button type="button" form="bulk-score-form"
-            {{-- เปลี่ยนตรงนี้! เพิ่มฟังก์ชัน checkAndShowBulkModal() --}}
-            @click="checkAndShowBulkModal()"
-            class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 w-full text-sm sm:text-base">
-            เพิ่มคะแนนให้รายการที่เลือก
-        </button>
-    </div>
-@endif
+    @if(session()->has('teacher_name') && count($students) > 0)
+        <div class="fixed bottom-0 left-0 w-full p-4 bg-white/90 backdrop-blur-sm z-20 sm:hidden">
+            <button type="button" form="bulk-score-form"
+                    @click="checkAndShowBulkModal()"
+                    class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 w-full text-sm sm:text-base">
+                เพิ่มคะแนนให้รายการที่เลือก
+            </button>
+        </div>
+    @endif
 
 
-    <!-- Modal เพิ่มคะแนน -->
-      <div x-show="show" x-cloak
-     class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
-    <div class="bg-white p-6 rounded-lg w-full max-w-md shadow-xl overflow-auto max-h-[90vh]">
-        <h2 class="text-xl font-bold mb-4">
-            เพิ่มคะแนน: <span x-text="isBulk ? 'รายการนักเรียนที่เลือก' : studentName"></span>
-        </h2>
-        <form id="bulk-score-form" method="POST" action="{{ route('score-entry.save') }}"
-              @submit.prevent="prepareBulkAndSubmit($event)">
-            @csrf
-            <template x-if="!isBulk">
-                <input type="hidden" name="student_id" :value="studentId">
-            </template>
+    <div x-show="show" x-cloak
+      class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-lg w-full max-w-md shadow-xl overflow-auto max-h-[90vh]">
+            <h2 class="text-xl font-bold mb-4">
+                เพิ่มคะแนน: <span x-text="isBulk ? 'รายการนักเรียนที่เลือก' : studentName"></span>
+            </h2>
+            <form id="bulk-score-form" method="POST" action="{{ route('score-entry.save') }}"
+                  @submit.prevent="prepareBulkAndSubmit($event)">
+                @csrf
+                <template x-if="!isBulk">
+                    <input type="hidden" name="student_id" :value="studentId">
+                </template>
 
-            {{-- **ส่วนนี้ถูกลบออกไป**
-            <div class="mb-4">
-                <label for="points" class="block font-medium mb-1">จำนวนคะแนน:</label>
-                <input type="number" name="points" id="points" required min="1" value="1"
-                       class="w-full border p-2 rounded text-sm sm:text-base">
-            </div>
-            --}}
+                <div class="mb-4">
+                    <label class="block font-medium mb-1">เหตุผลที่ให้คะแนน:</label>
+                    <textarea name="reason" x-model="reasonText" required maxlength="255" rows="3"
+                              class="w-full border p-2 rounded text-sm sm:text-base"></textarea>
 
-            <div class="mb-4">
-                <label class="block font-medium mb-1">เหตุผลที่ให้คะแนน:</label>
-                <textarea name="reason" x-model="reasonText" required maxlength="255" rows="3"
-                          class="w-full border p-2 rounded text-sm sm:text-base"></textarea>
-
-                <div class="mt-2 flex flex-wrap gap-2">
-                    <button type="button" @click="reasonText = 'มีความซื่อสัตย์'"
-                            class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs hover:bg-blue-200 transition">
-                        มีความซื่อสัตย์
-                    </button>
-                    <button type="button" @click="reasonText = 'มีจิตสาธารณะ'"
-                            class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs hover:bg-green-200 transition">
-                        มีจิตสาธารณะ
-                    </button>
-                    <button type="button" @click="reasonText = 'ทำความสะอาดห้องเรียน'"
-                            class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs hover:bg-yellow-200 transition">
-                        ทำความสะอาดห้องเรียน
-                    </button>
-                    <button type="button" @click="reasonText = 'ส่งงานตรงเวลา'"
-                            class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs hover:bg-purple-200 transition">
-                        ส่งงานตรงเวลา
-                    </button>
-                    <button type="button" @click="reasonText = 'มีความเอื้อเฟื้อเผื่อแผ่'"
-                            class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs hover:bg-red-200 transition">
-                        มีความเอื้อเฟื้อเผื่อแผ่
-                    </button>
-                    <button type="button" @click="reasonText = 'ตั้งใจเรียน'"
-                            class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs hover:bg-indigo-200 transition">
-                        ตั้งใจเรียน
-                    </button>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                        <button type="button" @click="reasonText = 'มีความซื่อสัตย์'"
+                                class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs hover:bg-blue-200 transition">
+                            มีความซื่อสัตย์
+                        </button>
+                        <button type="button" @click="reasonText = 'มีจิตสาธารณะ'"
+                                class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs hover:bg-green-200 transition">
+                            มีจิตสาธารณะ
+                        </button>
+                        <button type="button" @click="reasonText = 'ทำความสะอาดห้องเรียน'"
+                                class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs hover:bg-yellow-200 transition">
+                            ทำความสะอาดห้องเรียน
+                        </button>
+                        <button type="button" @click="reasonText = 'ส่งงานตรงเวลา'"
+                                class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs hover:bg-purple-200 transition">
+                            ส่งงานตรงเวลา
+                        </button>
+                        <button type="button" @click="reasonText = 'มีความเอื้อเฟื้อเผื่อแผ่'"
+                                class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs hover:bg-red-200 transition">
+                            มีความเอื้อเฟื้อเผื่อแผ่
+                        </button>
+                        <button type="button" @click="reasonText = 'ตั้งใจเรียน'"
+                                class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs hover:bg-indigo-200 transition">
+                            ตั้งใจเรียน
+                        </button>
                     </div>
-            </div>
+                </div>
 
-            <div class="flex flex-col-reverse sm:flex-row justify-end gap-2">
-                <button type="button" @click="show = false"
-                        class="px-4 py-2 bg-gray-300 rounded w-full sm:w-auto text-sm sm:text-base">
-                    ปิด
-                </button>
-                <button type="submit"
-                        class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 w-full sm:w-auto text-sm sm:text-base">
-                    บันทึก
-                </button>
-            </div>
-        </form>
+                <div class="flex flex-col-reverse sm:flex-row justify-end gap-2">
+                    <button type="button" @click="show = false"
+                            class="px-4 py-2 bg-gray-300 rounded w-full sm:w-auto text-sm sm:text-base">
+                        ปิด
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 w-full sm:w-auto text-sm sm:text-base">
+                        บันทึก
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
     @if (!session('teacher_id'))
         <div x-show="showLogin" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
