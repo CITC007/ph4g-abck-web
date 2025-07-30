@@ -538,6 +538,7 @@ class CertificateController extends Controller
                 $studentName = $certificate->student_name;
                 $studentId = $certificate->student_id;
                 $certificateNumber = $certificate->certificate_number;
+                $classRoom = $certificate->class_room;
 
                 // Load your certificate template image
                 $image = $imageManager->read(public_path('cert_templates/empty-bg.png'))->resize(3508, 2480);
@@ -633,7 +634,9 @@ class CertificateController extends Controller
                 $image->place($qrImage, 'bottom-right', 350, 600); // Adjust position as needed
 
                 // Save the generated certificate image
-                $filename = preg_replace('/[^A-Za-z0-9ก-๙]/u', '_', $studentName) . '_' . $certMonthThai . $issueYearBuddhist . '_certificate.png';
+                $fileNameClassRoom = str_replace('/', '_', $classRoom);
+                // $filename = preg_replace('/[^A-Za-z0-9ก-๙]/u', '_', $studentName) . '_' . $certMonthThai . $issueYearBuddhist . '_certificate.png';
+                $filename = $fileNameClassRoom . '_' . preg_replace('/[^A-Za-z0-9ก-๙]/u', '_', $studentName) . '_' . $certMonthThai . $issueYearBuddhist . '_certificate.png';
                 $image->save($tempFolder . $filename);
 
                 // Delete the temporary QR code file
