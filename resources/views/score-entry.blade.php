@@ -182,7 +182,7 @@
                         พบนักเรียนที่ได้คะแนนความดีสูงสุดเท่ากันจำนวน <strong class="text-blue-600">{{ $topStudentsInClass->count() }}</strong> คน
                         โปรดเลือก <strong class="text-purple-600">1 คน</strong> เพื่อรับรางวัลนักเรียนดีเด่น:
                     </p>
-                    <form action="{{ route('score-entry.select-top-student') }}" method="POST">
+                     <form action="{{ route('score-entry.select-top-student') }}" method="POST">
                         @csrf
                         <input type="hidden" name="class_room" value="{{ session('teacher_class_room') }}">
                         <div class="space-y-3 mb-4">
@@ -190,7 +190,18 @@
                                 <label class="flex items-center p-3 bg-white border border-gray-200 rounded-md shadow-sm cursor-pointer hover:bg-gray-50 transition-colors">
                                     <input type="radio" name="selected_top_student_id" value="{{ $student->id }}" required
                                            class="form-radio text-blue-600 h-5 w-5 mr-3">
-                                    <span class="text-gray-800 font-medium flex-grow">{{ $student->student_name }}</span>
+                                    <span class="text-gray-800 font-medium flex-grow">
+                                        {{ $student->student_name }}
+                                        
+                                        {{-- ** ส่วนที่เพิ่มเข้ามา ** --}}
+                                        @if($student->certificate_count > 0)
+                                            <span class="text-xs text-orange-500 ml-2">
+                                                (เคยได้รับเกียรติบัตรมาแล้ว {{ $student->certificate_count }} ครั้ง)
+                                            </span>
+                                        @endif
+                                        {{-- ** สิ้นสุดส่วนที่เพิ่มเข้ามา ** --}}
+
+                                    </span>
                                     <span class="ml-auto text-blue-600 font-bold">{{ $student->scores_sum_point }} คะแนน</span>
                                 </label>
                             @endforeach
@@ -325,25 +336,37 @@
                                 class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs hover:bg-blue-200 transition">
                             มีความซื่อสัตย์
                         </button>
-                        <button type="button" @click="reasonText = 'มีจิตสาธารณะ'"
+                        <button type="button" @click="reasonText = 'มีความรับผิดชอบ'"
                                 class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs hover:bg-green-200 transition">
+                            มีความรับผิดชอบ
+                        </button>
+                        <button type="button" @click="reasonText = 'มีจิตสาธารณะ'"
+                                class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs hover:bg-yellow-200 transition">
                             มีจิตสาธารณะ
                         </button>
-                        <button type="button" @click="reasonText = 'ทำความสะอาดห้องเรียน'"
-                                class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs hover:bg-yellow-200 transition">
-                            ทำความสะอาดห้องเรียน
-                        </button>
-                        <button type="button" @click="reasonText = 'ส่งงานตรงเวลา'"
-                                class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs hover:bg-purple-200 transition">
-                            ส่งงานตรงเวลา
-                        </button>
-                        <button type="button" @click="reasonText = 'มีความเอื้อเฟื้อเผื่อแผ่'"
-                                class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs hover:bg-red-200 transition">
-                            มีความเอื้อเฟื้อเผื่อแผ่
-                        </button>
                         <button type="button" @click="reasonText = 'ตั้งใจเรียน'"
-                                class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs hover:bg-indigo-200 transition">
+                                class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs hover:bg-purple-200 transition">
                             ตั้งใจเรียน
+                        </button>
+                        <button type="button" @click="reasonText = 'ปฏิบัติตามกฏระเบียบของโรงเรียน'"
+                                class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs hover:bg-red-200 transition">
+                            ปฏิบัติตามกฏระเบียบของโรงเรียน
+                        </button>
+                        <button type="button" @click="reasonText = 'มีวินัย'"
+                                class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs hover:bg-indigo-200 transition">
+                            มีวินัย
+                        </button>
+                          <button type="button" @click="reasonText = 'มีน้ำใจช่วยเหลือผู้อื่น'"
+                                class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs hover:bg-blue-200 transition">
+                            มีน้ำใจช่วยเหลือผู้อื่น
+                        </button>
+                        <button type="button" @click="reasonText = 'มีมายาทที่ดี'"
+                                class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs hover:bg-green-200 transition">
+                            มีมายาทที่ดี
+                        </button>
+                        <button type="button" @click="reasonText = 'มีส่วนร่วมในกิจกรรมของโรงเรียน'"
+                                class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs hover:bg-yellow-200 transition">
+                            มีส่วนร่วมในกิจกรรมของโรงเรียน
                         </button>
                     </div>
                 </div>

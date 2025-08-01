@@ -60,15 +60,7 @@ class ScoreController extends Controller
         $topStudentsInClass = collect();
         $topStudentAwarded = false;
 
-        // $currentMonth = Carbon::now()->month;
-        // $currentYear = Carbon::now()->year;
-        // $currentMonthYear = Carbon::now()->translatedFormat('F Y');
 
-        // $previousMonthCarbon = Carbon::now()->subMonth();
-        // $displayMonthForTopStudents = $previousMonthCarbon->month;
-        // $displayYearForTopStudents = $previousMonthCarbon->year;
-        // $previousMonthYearForDisplay = $previousMonthCarbon->translatedFormat('F Y');
-        // dd($previousMonthYearForDisplay);
         // ** ส่วนที่ถูกแก้ไข: สำหรับ เดือนปัจจุบัน **
         $currentCarbon = Carbon::now();
         $currentMonth = $currentCarbon->month; // ยังใช้สำหรับ Query
@@ -124,6 +116,12 @@ class ScoreController extends Controller
                         $topStudentsInClass = collect();
                     } else {
                         $topStudentsInClass = $topStudentsInClass->sortBy('student_number');
+                        foreach ($topStudentsInClass as $student) {
+                            $certificateCount = Certificate::where('student_name', $student->student_name)
+                                ->where('class_room', $student->class_room)
+                                ->count();
+                            $student->certificate_count = $certificateCount;
+                        }
                     }
                 } else {
                     $topStudentsInClass = collect();
@@ -131,15 +129,20 @@ class ScoreController extends Controller
             }
         }
 
-        return view('score-entry', [
-            'students' => $students,
-            'classRoom' => $classRoom,
-            'teachers' => $teachers,
-            'topStudentsInClass' => $topStudentsInClass,
-            'topStudentAwarded' => $topStudentAwarded,
-            'currentMonthYear' => $currentMonthYear,
-            'previousMonthYearForDisplay' => $previousMonthYearForDisplay,
-        ]);
+        return response()
+            ->view('score-entry', [
+                'students' => $students,
+                'classRoom' => $classRoom,
+                'teachers' => $teachers,
+                'topStudentsInClass' => $topStudentsInClass,
+                'topStudentAwarded' => $topStudentAwarded,
+                'currentMonthYear' => $currentMonthYear,
+                'previousMonthYearForDisplay' => $previousMonthYearForDisplay,
+            ])
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
+
     }
 
 
