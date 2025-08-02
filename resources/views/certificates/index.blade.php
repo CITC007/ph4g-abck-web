@@ -254,8 +254,8 @@
                                         @foreach ($studentsInRoom as $studentData)
                                             <tr
                                                 class="{{ $studentData->is_green_text ? 'bg-green-100' : '' }} 
-                                                                                   {{ !$studentData->is_green_text && $studentData->is_red_text ? 'bg-red-100' : '' }}
-                                                                                   {{ $studentData->is_orange_row ? 'bg-orange-50' : '' }}">
+                                                                                                                                                                                                                                                                       {{ !$studentData->is_green_text && $studentData->is_red_text ? 'bg-red-100' : '' }}
+                                                                                                                                                                                                                                                                       {{ $studentData->is_orange_row ? 'bg-orange-50' : '' }}">
                                                 {{--
                                                 เพิ่มสีพื้นหลังส้มตรงนี้ --}}
                                                 <td class="border border-gray-300 px-4 py-2 flex justify-center items-center">
@@ -280,30 +280,30 @@
                                                 </td>
                                                 <td
                                                     class="border border-gray-300 px-4 py-2 text-center
-                                                                                {{ $studentData->is_red_text ? 'text-red-600 font-medium' : '' }}
-                                                                                {{ $studentData->is_green_text ? 'text-green-600 font-medium' : '' }}
-                                                                                {{ $studentData->is_grey_text ? 'text-gray-500' : '' }}
-                                                                                {{ $studentData->is_orange_text ? 'text-orange-700 font-medium' : '' }}">
+                                                                                                                                                                                                                                                                    {{ $studentData->is_red_text ? 'text-red-600 font-medium' : '' }}
+                                                                                                                                                                                                                                                                    {{ $studentData->is_green_text ? 'text-green-600 font-medium' : '' }}
+                                                                                                                                                                                                                                                                    {{ $studentData->is_grey_text ? 'text-gray-500' : '' }}
+                                                                                                                                                                                                                                                                    {{ $studentData->is_orange_text ? 'text-orange-700 font-medium' : '' }}">
                                                     {{--
                                                     เพิ่มสีตัวหนังสือส้มตรงนี้ --}}
                                                     {{ $studentData->student_name_display }}
                                                 </td>
                                                 <td
                                                     class="border border-gray-300 px-4 py-2 text-center
-                                                                                {{ $studentData->is_red_text ? 'text-red-600 font-medium' : '' }}
-                                                                                {{ $studentData->is_green_text ? 'text-green-600 font-medium' : '' }}
-                                                                                {{ $studentData->is_grey_text ? 'text-gray-500' : '' }}
-                                                                                {{ $studentData->is_orange_text ? 'text-orange-700 font-medium' : '' }}">
+                                                                                                                                                                                                                                                                    {{ $studentData->is_red_text ? 'text-red-600 font-medium' : '' }}
+                                                                                                                                                                                                                                                                    {{ $studentData->is_green_text ? 'text-green-600 font-medium' : '' }}
+                                                                                                                                                                                                                                                                    {{ $studentData->is_grey_text ? 'text-gray-500' : '' }}
+                                                                                                                                                                                                                                                                    {{ $studentData->is_orange_text ? 'text-orange-700 font-medium' : '' }}">
                                                     {{--
                                                     เพิ่มสีตัวหนังสือส้มตรงนี้ --}}
                                                     {{ $studentData->score_display }}
                                                 </td>
                                                 <td
                                                     class="border border-gray-300 px-4 py-2 text-center
-                                                                                {{ $studentData->is_red_text ? 'text-red-600 font-medium' : '' }}
-                                                                                {{ $studentData->is_green_text ? 'text-green-600 font-medium' : '' }}
-                                                                                {{ $studentData->is_grey_text ? 'text-gray-500' : '' }}
-                                                                                {{ $studentData->is_orange_text ? 'text-orange-700 font-medium' : '' }}">
+                                                                                                                                                                                                                                                                    {{ $studentData->is_red_text ? 'text-red-600 font-medium' : '' }}
+                                                                                                                                                                                                                                                                    {{ $studentData->is_green_text ? 'text-green-600 font-medium' : '' }}
+                                                                                                                                                                                                                                                                    {{ $studentData->is_grey_text ? 'text-gray-500' : '' }}
+                                                                                                                                                                                                                                                                    {{ $studentData->is_orange_text ? 'text-orange-700 font-medium' : '' }}">
                                                     {{--
                                                     เพิ่มสีตัวหนังสือส้มตรงนี้ --}}
                                                     {{ $studentData->certificate_display }}
@@ -329,6 +329,45 @@
 
                 {{-- Action buttons for creating certificates (Conditional visibility based on students found) --}}
                 <div class="button-group create-group md:w-1/2" id="create-buttons-container"
+                    style="display: {{ $hasDataToCreate ? 'flex' : 'none' }};">
+                    <form id="createCertForm" action="{{ route('certificates.save') }}" method="POST"
+                        class="flex flex-col gap-4">
+                        @csrf
+
+                        {{-- แถวแรก: หัวข้อ, ข้อความ "เลขที่", และช่องกรอก --}}
+                        <div class="flex items-center gap-4 mt-4">
+                            <h3 class="text-lg font-semibold text-purple-800 whitespace-nowrap">
+                                ตัวเลือกสำหรับสร้างใบประกาศ
+                            </h3>
+                            <label for="certificate_number"
+                                class="text-lg font-semibold text-red-800 whitespace-nowrap">
+                                เลขที่ใบประกาศฯ <span class="text-red-500">*</span>
+                            </label>
+                            <input type="number" name="certificate_number" id="certificate_number" required
+                                class="block w-32 rounded-md border-2 border-red-500 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm p-2"
+                                placeholder="กรอกเลขที่">
+                        </div>
+
+                        {{-- แถวที่สอง: ปุ่มต่างๆ --}}
+                        <div class="flex items-center gap-4 flex-wrap mt-4">
+                            <button type="button" id="selectAllStudentsToCreate"
+                                class="bg-purple-200 hover:bg-purple-300 text-purple-800 font-semibold py-2 px-4 rounded">
+                                เลือกทั้งหมด
+                            </button>
+                            <button type="button" id="deselectAllStudentsToCreate"
+                                class="bg-purple-200 hover:bg-purple-300 text-purple-800 font-semibold py-2 px-4 rounded">
+                                ยกเลิกการเลือกทั้งหมด
+                            </button>
+                            <input type="hidden" name="selected_students" id="selectedStudentsToCreateInput">
+                            <button type="submit" id="createCertButton" disabled
+                                class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded opacity-50 cursor-not-allowed">
+                                สร้างใบประกาศที่เลือก
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <!-- {{-- Action buttons for creating certificates (Conditional visibility based on students found) --}}
+                <div class="button-group create-group md:w-1/2" id="create-buttons-container"
                     style="display: {{ $hasDataToCreate ? 'flex' : 'none' }};"> {{-- แก้ไขตรงนี้!! --}}
                     <h3 class="text-lg font-semibold text-purple-800">ตัวเลือกสำหรับสร้างใบประกาศ</h3>
                     <div class="flex items-center gap-4"> {{-- Group for buttons and form --}}
@@ -350,7 +389,7 @@
                             </button>
                         </form>
                     </div>
-                </div>
+                </div> -->
 
                 {{-- Action buttons for downloading existing certificates (Conditional visibility) --}}
                 <div class="button-group download-group md:w-1/2" id="download-buttons-container"
@@ -488,7 +527,6 @@
             </form>
         </div>
     </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const createCertCheckboxes = document.querySelectorAll('.create-cert-checkbox');
@@ -496,6 +534,9 @@
             const createCertButton = document.getElementById('createCertButton');
             const selectAllStudentsToCreateBtn = document.getElementById('selectAllStudentsToCreate');
             const deselectAllStudentsToCreateBtn = document.getElementById('deselectAllStudentsToCreate');
+
+            // เพิ่มตัวแปรสำหรับช่องกรอกเลขที่ใบประกาศฯ
+            const certificateNumberInput = document.getElementById('certificate_number');
 
             const downloadCertCheckboxes = document.querySelectorAll('.download-cert-checkbox');
             const selectedCertificatesToDownloadInput = document.getElementById('selectedCertificatesToDownloadInput');
@@ -529,7 +570,10 @@
                 });
                 selectedStudentsToCreateInput.value = JSON.stringify(selectedStudentsData);
 
-                if (selectedStudentsData.length > 0) {
+                // ** เพิ่มการตรวจสอบช่องกรอกเลขที่ใบประกาศฯ (ห้ามเป็นค่าว่าง) **
+                const isCertNumberFilled = certificateNumberInput.value.trim() !== '';
+
+                if (selectedStudentsData.length > 0 && isCertNumberFilled) {
                     createCertButton.disabled = false;
                     createCertButton.classList.remove('opacity-50', 'cursor-not-allowed');
                 } else {
@@ -563,6 +607,11 @@
             createCertCheckboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', updateCreateCertButtonState);
             });
+
+            // ** เพิ่ม Event Listener สำหรับช่องกรอกเลขที่ใบประกาศฯ **
+            if (certificateNumberInput) {
+                certificateNumberInput.addEventListener('input', updateCreateCertButtonState);
+            }
 
             if (selectAllStudentsToCreateBtn) {
                 selectAllStudentsToCreateBtn.addEventListener('click', function () {
@@ -636,8 +685,10 @@
                 const generatedCertNumbers = {!! json_encode(session('generated_cert_numbers')) !!};
                 console.log('Generated Certificate Numbers:', generatedCertNumbers);
             @endif
-        });
+    });
     </script>
+
+
 </body>
 
 </html>

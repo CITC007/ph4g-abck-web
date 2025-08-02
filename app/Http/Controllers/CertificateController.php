@@ -78,7 +78,6 @@ class CertificateController extends Controller
             }
         }
         // แสดง View ฟอร์มกรอก PIN
-        // dd($secondsRemaining);
         return view('auth.pin_form', compact('secondsRemaining'));
     }
 
@@ -402,8 +401,10 @@ class CertificateController extends Controller
     }
     public function saveAndGenerateCertificates(Request $request)
     {
+        // กำหนดกฎการตรวจสอบข้อมูลที่ส่งมาจากฟอร์ม
         $request->validate([
             'selected_students' => 'required|string',
+            'certificate_number' => 'required|numeric', // ตรวจสอบว่าต้องมีค่าและเป็นตัวเลขเท่านั้น
         ]);
 
         $studentsToProcess = json_decode($request->input('selected_students'), true);
@@ -412,53 +413,71 @@ class CertificateController extends Controller
             return back()->with('error', 'ไม่พบข้อมูลนักเรียนที่เลือกสำหรับการสร้างใบประกาศ');
         }
 
-        $generatedCertificateNumbers = []; // For newly created certificates
-        $skippedStudents = []; // For students whose certs already exist
+        // ดึงเลขที่ใบประกาศที่ครูระบุเป็นเลขเริ่มต้น
+        $userProvidedNumber = (int) $request->input('certificate_number');
+        $buddhistYear = (string) (Carbon::now()->year + 543);
+        $currentRunningNumber = 0;
 
         DB::beginTransaction();
         try {
+            // ดึงเลขที่ใบประกาศล่าสุดจากฐานข้อมูล
+            $lastCert = Certificate::orderBy('id', 'desc')->first();
+            $lastDbRunningNumber = 0;
+
+            if ($lastCert) {
+                // แยกตัวเลขจากเลขที่ใบประกาศล่าสุดในรูปแบบ "XXX/YYYY"
+                if (preg_match('/^(\d+)\/\d{4}$/', $lastCert->certificate_number, $matches)) {
+                    $lastDbRunningNumber = (int) $matches[1];
+                }
+            }
+
+            // เปรียบเทียบและกำหนดเลขเริ่มต้นที่ใช้
+            // ถ้าเลขที่ครูกรอกมากกว่าเลขล่าสุดใน DB ให้ใช้เลขที่ครูกรอกเป็นเลขเริ่มต้น
+            // ถ้าเลขที่ครูกรอกน้อยกว่าหรือเท่ากับเลขล่าสุดใน DB ให้ใช้เลขล่าสุดใน DB + 1 เป็นเลขเริ่มต้น
+            if ($userProvidedNumber > $lastDbRunningNumber) {
+                $currentRunningNumber = $userProvidedNumber;
+            } else {
+                $currentRunningNumber = $lastDbRunningNumber + 1;
+            }
+
+            $generatedCertificateNumbers = []; // สำหรับใบประกาศที่สร้างใหม่
+            $skippedStudents = []; // สำหรับนักเรียนที่มีใบประกาศอยู่แล้ว
+
             foreach ($studentsToProcess as $studentData) {
                 if (!isset($studentData['id']) || !isset($studentData['score']) || !isset($studentData['month']) || !isset($studentData['year'])) {
                     \Log::warning("ข้อมูลนักเรียนไม่สมบูรณ์สำหรับการสร้างใบประกาศ: " . json_encode($studentData));
-                    continue; // Skip incomplete data
+                    continue; // ข้ามข้อมูลที่ไม่สมบูรณ์
                 }
 
                 $studentId = $studentData['id'];
                 $totalScore = $studentData['score'];
                 $month = $studentData['month'];
-                $year = $studentData['year']; // Year received is Gregorian
+                $year = $studentData['year']; // ปีที่ได้รับเป็นปีพุทธศักราช
 
                 $student = Student::find($studentId);
                 if (!$student) {
                     \Log::warning("ไม่พบนักเรียน ID: {$studentId} สำหรับสร้างใบประกาศ (อาจถูกลบไปแล้ว?)");
-                    continue; // Skip if student not found
+                    continue; // ข้ามถ้านักเรียนไม่พบ
                 }
 
-                // IMPORTANT: Check if certificate already exists before creating
+                // ตรวจสอบว่ามีใบประกาศสำหรับนักเรียนนี้อยู่แล้วหรือไม่
                 $existingCert = Certificate::where('student_id', $studentId)
                     ->where('month', $month)
                     ->where('year', $year)
                     ->first();
 
                 if ($existingCert) {
-                    // If certificate already exists, add to skipped list and continue
                     $skippedStudents[] = [
                         'name' => $student->student_name,
                         'cert_number' => $existingCert->certificate_number
                     ];
-                    continue; // Skip creating a duplicate
+                    continue; // ข้ามการสร้างซ้ำ
                 }
 
-                // Generate new certificate number
-                $lastCert = Certificate::orderBy('id', 'desc')->first();
-                $lastRunningNumber = 0;
-                if ($lastCert && preg_match('/^(\d+)\/\d{4}$/', $lastCert->certificate_number, $matches)) {
-                    $lastRunningNumber = (int) $matches[1];
-                }
-                $newRunningNumber = sprintf('%03d', $lastRunningNumber + 1);
-                $certificateNumber = $newRunningNumber . '/' . (Carbon::now()->year + 543);
+                // สร้างเลขที่ใบประกาศใหม่ตามลำดับ
+                $certificateNumber = sprintf('%03d', $currentRunningNumber) . '/' . $buddhistYear;
 
-                // Create the new certificate
+                // สร้างใบประกาศใหม่
                 $certificate = Certificate::create([
                     'student_id' => $student->id,
                     'student_name' => $student->student_name,
@@ -470,6 +489,9 @@ class CertificateController extends Controller
                     'issued_at' => Carbon::now(),
                 ]);
                 $generatedCertificateNumbers[$student->id] = $certificateNumber;
+
+                // เพิ่มค่าตัวนับสำหรับใบประกาศถัดไป
+                $currentRunningNumber++;
             }
             DB::commit();
 
@@ -480,13 +502,100 @@ class CertificateController extends Controller
 
             return back()->with('success', $message)
                 ->with('generated_cert_numbers', $generatedCertificateNumbers)
-                ->with('skipped_students', $skippedStudents); // Pass skipped students for display
+                ->with('skipped_students', $skippedStudents);
         } catch (Throwable $e) {
             DB::rollBack();
             \Log::error("เกิดข้อผิดพลาดในการบันทึกใบประกาศ: " . $e->getMessage());
             return back()->with('error', 'เกิดข้อผิดพลาดในการสร้างใบประกาศ: ' . $e->getMessage());
         }
     }
+    // public function saveAndGenerateCertificates(Request $request)
+    // {
+    //     $request->validate([
+    //         'selected_students' => 'required|string',
+    //     ]);
+
+    //     $studentsToProcess = json_decode($request->input('selected_students'), true);
+
+    //     if (!is_array($studentsToProcess) || empty($studentsToProcess)) {
+    //         return back()->with('error', 'ไม่พบข้อมูลนักเรียนที่เลือกสำหรับการสร้างใบประกาศ');
+    //     }
+
+    //     $generatedCertificateNumbers = []; // For newly created certificates
+    //     $skippedStudents = []; // For students whose certs already exist
+
+    //     DB::beginTransaction();
+    //     try {
+    //         foreach ($studentsToProcess as $studentData) {
+    //             if (!isset($studentData['id']) || !isset($studentData['score']) || !isset($studentData['month']) || !isset($studentData['year'])) {
+    //                 \Log::warning("ข้อมูลนักเรียนไม่สมบูรณ์สำหรับการสร้างใบประกาศ: " . json_encode($studentData));
+    //                 continue; // Skip incomplete data
+    //             }
+
+    //             $studentId = $studentData['id'];
+    //             $totalScore = $studentData['score'];
+    //             $month = $studentData['month'];
+    //             $year = $studentData['year']; // Year received is Gregorian
+
+    //             $student = Student::find($studentId);
+    //             if (!$student) {
+    //                 \Log::warning("ไม่พบนักเรียน ID: {$studentId} สำหรับสร้างใบประกาศ (อาจถูกลบไปแล้ว?)");
+    //                 continue; // Skip if student not found
+    //             }
+
+    //             // IMPORTANT: Check if certificate already exists before creating
+    //             $existingCert = Certificate::where('student_id', $studentId)
+    //                 ->where('month', $month)
+    //                 ->where('year', $year)
+    //                 ->first();
+
+    //             if ($existingCert) {
+    //                 // If certificate already exists, add to skipped list and continue
+    //                 $skippedStudents[] = [
+    //                     'name' => $student->student_name,
+    //                     'cert_number' => $existingCert->certificate_number
+    //                 ];
+    //                 continue; // Skip creating a duplicate
+    //             }
+
+    //             // Generate new certificate number
+    //             $lastCert = Certificate::orderBy('id', 'desc')->first();
+    //             $lastRunningNumber = 0;
+    //             if ($lastCert && preg_match('/^(\d+)\/\d{4}$/', $lastCert->certificate_number, $matches)) {
+    //                 $lastRunningNumber = (int) $matches[1];
+    //             }
+    //             $newRunningNumber = sprintf('%03d', $lastRunningNumber + 1);
+    //             $certificateNumber = $newRunningNumber . '/' . (Carbon::now()->year + 543);
+
+    //             // Create the new certificate
+    //             $certificate = Certificate::create([
+    //                 'student_id' => $student->id,
+    //                 'student_name' => $student->student_name,
+    //                 'class_room' => $student->class_room,
+    //                 'total_score' => $totalScore,
+    //                 'month' => $month,
+    //                 'year' => $year,
+    //                 'certificate_number' => $certificateNumber,
+    //                 'issued_at' => Carbon::now(),
+    //             ]);
+    //             $generatedCertificateNumbers[$student->id] = $certificateNumber;
+    //         }
+    //         DB::commit();
+
+    //         $message = 'สร้างใบประกาศเรียบร้อยแล้ว!';
+    //         if (!empty($skippedStudents)) {
+    //             $message .= ' (มี ' . count($skippedStudents) . ' ใบประกาศที่ไม่ได้สร้างใหม่ เนื่องจากมีอยู่แล้ว)';
+    //         }
+
+    //         return back()->with('success', $message)
+    //             ->with('generated_cert_numbers', $generatedCertificateNumbers)
+    //             ->with('skipped_students', $skippedStudents); // Pass skipped students for display
+    //     } catch (Throwable $e) {
+    //         DB::rollBack();
+    //         \Log::error("เกิดข้อผิดพลาดในการบันทึกใบประกาศ: " . $e->getMessage());
+    //         return back()->with('error', 'เกิดข้อผิดพลาดในการสร้างใบประกาศ: ' . $e->getMessage());
+    //     }
+    // }
 
     public function downloadSelectedCertificates(Request $request)
     {

@@ -156,7 +156,7 @@
                         'ป.5/1','ป.5/2','ป.5/3','ป.5/4',
                         'ป.6/1','ป.6/2','ป.6/3','ป.6/4',
                     ] as $room)
-                        <option value="{{ $room }}" {{ $classRoom == $room ? 'selected' : '' }}>{{ $room }}</option>
+                        <option value="{{ $room }}">{{ $room }}</option>
                     @endforeach
                 </select>
                 <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded w-full sm:w-auto text-sm sm:text-base">ค้นหา</button>

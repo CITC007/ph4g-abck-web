@@ -94,37 +94,47 @@ class ScoreController extends Controller
                 ->exists();
 
             if (!$topStudentAwarded) {
-                $studentsForTopCalculation = Student::where('class_room', $classRoom)
+                // ** ส่วนที่ถูกปรับปรุง: ใช้ field 'month' และ 'year' เพื่อค้นหาคะแนนสูงสุด **
+                // 1. ค้นหาคะแนนสูงสุดของเดือนที่แล้วในคำสั่งเดียว
+                $maxScoreResult = Student::where('class_room', $classRoom)
                     ->withSum([
                         'scores' => function ($query) use ($displayMonthForTopStudents, $displayYearForTopStudents) {
-                            $query->whereMonth('created_at', $displayMonthForTopStudents)
-                                ->whereYear('created_at', $displayYearForTopStudents);
+                            $query->where('month', $displayMonthForTopStudents)
+                                ->where('year', $displayYearForTopStudents);
                         }
-                    ], 'point') // รวมเฉพาะคะแนน (point) ของเดือนที่แล้ว
-                    ->get()
-                    ->sortByDesc('scores_sum_point');
+                    ], 'point')
+                    ->orderByDesc('scores_sum_point')
+                    ->first();
 
-                if ($studentsForTopCalculation->isNotEmpty()) {
-                    $maxScore = $studentsForTopCalculation->first()->scores_sum_point;
+                $maxScore = $maxScoreResult ? $maxScoreResult->scores_sum_point : 0;
 
-                    $topStudentsInClass = $studentsForTopCalculation->filter(function ($student) use ($maxScore) {
-                        return $student->scores_sum_point === $maxScore && $maxScore > 0;
-                    });
-
-
-                    if ($topStudentsInClass->count() <= 1) {
-                        $topStudentsInClass = collect();
-                    } else {
-                        $topStudentsInClass = $topStudentsInClass->sortBy('student_number');
-                        foreach ($topStudentsInClass as $student) {
-                            $certificateCount = Certificate::where('student_name', $student->student_name)
-                                ->where('class_room', $student->class_room)
-                                ->count();
-                            $student->certificate_count = $certificateCount;
-                        }
-                    }
+                // 2. ถ้ามีคะแนนสูงสุด (และ > 0) ให้ดึงนักเรียนทั้งหมดที่ได้คะแนนเท่ากับคะแนนสูงสุดนั้น
+                if ($maxScore > 0) {
+                    $topStudentsInClass = Student::where('class_room', $classRoom)
+                        ->withSum([
+                            'scores' => function ($query) use ($displayMonthForTopStudents, $displayYearForTopStudents) {
+                                // ** ใช้ field 'month' และ 'year' เหมือนกับการค้นหาคะแนนสูงสุดด้านบน **
+                                $query->where('month', $displayMonthForTopStudents)
+                                    ->where('year', $displayYearForTopStudents);
+                            }
+                        ], 'point')
+                        ->having('scores_sum_point', '=', $maxScore)
+                        ->orderBy('student_number', 'asc')
+                        ->get();
                 } else {
                     $topStudentsInClass = collect();
+                }
+
+                // 3. ตรวจสอบว่ามีนักเรียนที่คะแนนสูงสุดซ้ำกันมากกว่า 1 คนหรือไม่
+                if ($topStudentsInClass->count() <= 1) {
+                    $topStudentsInClass = collect();
+                } else {
+                    foreach ($topStudentsInClass as $student) {
+                        $certificateCount = Certificate::where('student_name', $student->student_name)
+                            ->where('class_room', $student->class_room)
+                            ->count();
+                        $student->certificate_count = $certificateCount;
+                    }
                 }
             }
         }
@@ -171,34 +181,86 @@ class ScoreController extends Controller
         $displayYearForTopStudents = $previousMonthCarbon->year;
         $previousMonthYearForDisplay = $previousMonthCarbon->translatedFormat('F Y');
 
+        // Check if the logged-in teacher has a classroom assigned.
         if (!$teacherClassRoom) {
             return redirect()->back()->with('error', 'ไม่พบข้อมูลห้องเรียนของครูผู้ใช้งาน');
         }
 
         $query = Student::query();
 
-        $selectedClassRoom = $request->input('class_room', $teacherClassRoom);
-        $query->where('class_room', $selectedClassRoom);
+        $selectedClassRoom = $request->input('class_room');
+        $keyword = $request->input('keyword');
 
+        // --- Search Logic ---
+        // If a keyword is provided, search all students by name or student code.
         if ($request->filled('keyword')) {
-            $keyword = $request->keyword;
             $query->where(function ($q) use ($keyword) {
                 $q->where('student_name', 'like', "%{$keyword}%")
                     ->orWhere('student_code', 'like', "%{$keyword}%");
             });
+            // If a class room is also selected, filter the search results by that class.
+            if ($request->filled('class_room')) {
+                $query->where('class_room', $selectedClassRoom);
+            }
+        }
+        // If no keyword is provided, but a class room is selected, display students from that specific class.
+        else if ($request->filled('class_room')) {
+            $query->where('class_room', $selectedClassRoom);
+        }
+        // If neither a keyword nor a class room is specified, default to showing the teacher's own classroom.
+        else {
+            $query->where('class_room', $teacherClassRoom);
+            $selectedClassRoom = $teacherClassRoom;
         }
 
-        // *** แก้ไข: ใช้ withSum เพื่อรวมคะแนนของเดือนปัจจุบันโดยตรงในการค้นหา ***
+        // Retrieve students and their scores for the current month.
         $students = $query->withSum([
             'scores' => function ($q) use ($currentMonth, $currentYear) {
-                $q->where('month', $currentMonth) // <-- เปลี่ยนเป็น field 'month'
-                    ->where('year', $currentYear);   // <-- เปลี่ยนเป็น field 'year'
+                $q->where('month', $currentMonth)
+                    ->where('year', $currentYear);
             }
         ], 'point')
             ->orderBy('student_number', 'asc')
             ->get();
 
-        // ไม่ต้องใช้ transform อีกแล้ว เพราะ withSum จะสร้าง scores_sum_point มาให้เลย
+        // ** Start of modified section **
+        // The top students section will only be calculated and displayed if the teacher
+        // is viewing their own assigned classroom.
+        if ($selectedClassRoom === $teacherClassRoom) {
+            $classRoomForTopStudents = $selectedClassRoom;
+
+            $topStudentAwarded = Certificate::where('class_room', $classRoomForTopStudents)
+                ->where('month', $displayMonthForTopStudents)
+                ->where('year', $displayYearForTopStudents)
+                ->exists();
+
+            if (!$topStudentAwarded) {
+                $studentsForTopCalculation = Student::where('class_room', $classRoomForTopStudents)
+                    ->withSum([
+                        'scores' => function ($query) use ($displayMonthForTopStudents, $displayYearForTopStudents) {
+                            $query->where('month', $displayMonthForTopStudents)
+                                ->where('year', $displayYearForTopStudents);
+                        }
+                    ], 'point')
+                    ->get()
+                    ->sortByDesc('scores_sum_point');
+
+                if ($studentsForTopCalculation->isNotEmpty()) {
+                    $maxScore = $studentsForTopCalculation->first()->scores_sum_point;
+                    $topStudentsInClass = $studentsForTopCalculation->filter(function ($student) use ($maxScore) {
+                        return $student->scores_sum_point === $maxScore && $maxScore > 0;
+                    });
+                    if ($topStudentsInClass->count() <= 1) {
+                        $topStudentsInClass = collect();
+                    } else {
+                        $topStudentsInClass = $topStudentsInClass->sortBy('student_number');
+                    }
+                } else {
+                    $topStudentsInClass = collect();
+                }
+            }
+        }
+        // ** End of modified section **
 
         $orderedRooms = [
             'ป.1/1',
@@ -231,51 +293,17 @@ class ScoreController extends Controller
             return $index !== false ? $index : count($orderedRooms);
         });
 
-        if ($selectedClassRoom === $teacherClassRoom) {
-            $topStudentAwarded = Certificate::where('class_room', $teacherClassRoom)
-                ->where('month', $displayMonthForTopStudents)
-                ->where('year', $displayYearForTopStudents)
-                ->exists();
-
-            if (!$topStudentAwarded) {
-                $studentsForTopCalculation = Student::where('class_room', $teacherClassRoom)
-                    ->withSum([
-                        'scores' => function ($query) use ($displayMonthForTopStudents, $displayYearForTopStudents) {
-                            $query->whereMonth('created_at', $displayMonthForTopStudents)
-                                ->whereYear('created_at', $displayYearForTopStudents);
-                        }
-                    ], 'point')
-                    ->get()
-                    ->sortByDesc('scores_sum_point');
-
-                if ($studentsForTopCalculation->isNotEmpty()) {
-                    $maxScore = $studentsForTopCalculation->first()->scores_sum_point;
-                    $topStudentsInClass = $studentsForTopCalculation->filter(function ($student) use ($maxScore) {
-                        return $student->scores_sum_point === $maxScore && $maxScore > 0;
-                    });
-                    if ($topStudentsInClass->count() <= 1) {
-                        $topStudentsInClass = collect();
-                    } else {
-                        $topStudentsInClass = $topStudentsInClass->sortBy('student_number');
-                    }
-                } else {
-                    $topStudentsInClass = collect();
-                }
-            }
-        }
-
         return view('score-entry', [
             'students' => $students,
             'classRoom' => $selectedClassRoom,
             'teachers' => $teachers,
+            'allClassRooms' => $orderedRooms,
             'topStudentsInClass' => $topStudentsInClass,
             'topStudentAwarded' => $topStudentAwarded,
             'currentMonthYear' => $currentMonthYear,
             'previousMonthYearForDisplay' => $previousMonthYearForDisplay,
         ]);
     }
-
-
 
     /**
      * เมธอดสำหรับบันทึกคะแนนนักเรียนทั่วไป
@@ -291,7 +319,8 @@ class ScoreController extends Controller
         }
 
         if ($request->filled('student_id')) {
-            $student = Student::where('id', $request->student_id)->where('class_room', session('teacher_class_room'))->first();
+            // $student = Student::where('id', $request->student_id)->where('class_room', session('teacher_class_room'))->first();
+            $student = Student::find($request->student_id);
             if (!$student) {
                 return redirect()->back()->with('error', 'ไม่พบนักเรียนที่คุณต้องการเพิ่มคะแนนในห้องของคุณ');
             }
